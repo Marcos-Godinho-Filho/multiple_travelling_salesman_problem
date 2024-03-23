@@ -1,5 +1,6 @@
 import random
 import math
+import matplotlib.pyplot as plt
 from city import City
 
 
@@ -148,3 +149,42 @@ cities, distances = create_random_problem(n_cities)
 print(cities)
 for l in distances:
     print(l)
+
+
+def draw_cities (cities: list[City], centroid: City):
+
+    plt.clf()
+
+    for i, city in enumerate(cities):
+        plt.scatter(city.x, city.y, color='red')
+        plt.text(city.x, city.y, f'{i+1}')
+    
+    plt.scatter(centroid.x, centroid.y, color='blue')
+
+    plt.show()
+
+
+def find_centroid_city (n_cities: int, distances: list, cities: list[City]):
+    centroid_city, centroid_distances = None, float('inf')
+    for city in range(n_cities):
+        # for each city, calculate sum of distances to every other city
+        distances_sum = 0
+        for distance in distances[city]: 
+            distances_sum += distance
+
+        if distances_sum < centroid_distances:
+            centroid_city, centroid_distances = city, distances_sum
+    
+    return cities[centroid_city]
+
+
+centroid = find_centroid_city(n_cities, distances, cities)
+draw_cities(cities, centroid)
+
+
+# TODO:
+    # [x] Draw cities
+    # [x] Find centroid city (city that has the lowest sum of distances to every other city)
+    # [x] Draw centroid
+    # [] Create polygon
+    # [] Each sallesman will travel to one polygon 
