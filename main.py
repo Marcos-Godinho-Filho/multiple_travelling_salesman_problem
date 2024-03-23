@@ -1,5 +1,7 @@
 import random
 import math
+from city import City
+
 
 n_cities = 17 # número de cidades
 
@@ -88,27 +90,6 @@ def nearest_neighbor_heuristic_from_random(distances: list):
     return tour
 
 
-def nearest_neighbor_heuristic_hibrid(distances: list):
-    # Ainda escolhemos aleatoriamente a primeira cidade do tour
-    unvisited = list(range(0, len(distances)))
-    tour = [random.choice(unvisited)]
-    unvisited.remove(tour[-1])
-
-    # Nessa primeira parte, vamos escolhendo as cidades de acordo com a menor distancia
-    for i in range(len(distances) // 2):
-        next_city = min(unvisited, key = lambda candidate: distances[tour[-1]][candidate])
-        tour.append(next_city)
-        unvisited.remove(next_city)
-    
-    # Nessa segunda parte, escolhemos aleatoriamente as proximas cidades do tour
-    while unvisited:
-        next_city = random.choice(unvisited)
-        tour.append(next_city)
-        unvisited.remove(next_city)
-
-    return tour
-
-
 def random_nearest_neighbor_heuristic(distances: list):
     unvisited = list(range(0, len(distances)))
     tour = random.sample(unvisited, len(distances) / 2) # samples não devolve os elementos escolhidos para o tour
@@ -123,22 +104,6 @@ def random_nearest_neighbor_heuristic(distances: list):
 
     return tour
 
-
-def generate_distances_matrix(size):
-    distances = [[0 for c in range(size)] for l in range(size)]
-
-    for l in range(size):
-        for c in range(l+1, size):
-            distances[l][c] = distances[c][l] = random.randint(1, 1000)
-
-    return distances
-
-
-def generate_coordinates():
-    global n_cities
-    coordinates = [(random.randint(0, 1000), random.randint(0, 1000)) for _ in range(n_cities)]
-
-    return coordinates
 
 
 def distances_from_coordinates(coordinates: list):
@@ -161,41 +126,18 @@ def distances_from_coordinates(coordinates: list):
     return distances
 
 
-def create_random_problem (n_cities):
-    coordinates = []
+def create_random_problem (n_cities: int):
+    # create n cities and their coordinates
+    cities: list[City] = []
     for _ in range(n_cities):
-        coordinates.append((int(random.uniform(0, 100)), int(random.uniform(0, 100))))
+        x, y = int(random.uniform(0, 100)), int(random.uniform(0, 100))
+        city = City(x, y)
+        cities.append(city)
 
+    # create distances array based on those coordinates
     distances = [[0 for _ in range(n_cities)] for __ in range(n_cities)]
     for i in range(n_cities):
         for j in range(i+1, n_cities):
-            distances[i][j] = distances[j][i] = int(math.sqrt((coordinates[j][0] - coordinates[i][0]) ** 2 + (coordinates[j][1] - coordinates[i][0]) ** 2))
+            distances[i][j] = distances[j][i] = int(math.sqrt((cities[j].x - cities[i].x) ** 2 + (cities[j].y - cities[i].y) ** 2))
 
-    return coordinates, distances
-
-
-'''
-print(get_total_distance(list(range(n_cities))))
-
-tour = nearest_neighbor_heuristic_from_0()
-print(get_total_distance(tour))
-print(tour)
-
-tour = nearest_neighbor_heuristic_from_random()
-print(get_total_distance(tour))
-print(tour)
-
-tour = nearest_neighbor_heuristic_hibrid()
-print(get_total_distance(tour))
-print(tour)
-'''
-
-new = generate_distances_matrix(100)
-#for l in new:
-    #print(l)
-
-c = generate_coordinates()
-print(c)
-d = distances_from_coordinates(c)
-for l in d:
-    print(l)
+    return cities, distances
