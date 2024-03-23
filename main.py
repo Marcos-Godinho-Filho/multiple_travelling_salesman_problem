@@ -130,7 +130,7 @@ def create_random_problem (n_cities: int):
     # create n cities and their coordinates
     cities: list[City] = []
     for _ in range(n_cities):
-        x, y = int(random.uniform(0, 100)), int(random.uniform(0, 100))
+        x, y = int(random.uniform(0, 1000)), int(random.uniform(0, 1000))
         city = City(x, y)
         cities.append(city)
 
@@ -141,3 +141,10 @@ def create_random_problem (n_cities: int):
             distances[i][j] = distances[j][i] = int(math.sqrt((cities[j].x - cities[i].x) ** 2 + (cities[j].y - cities[i].y) ** 2))
 
     return cities, distances
+
+
+n_cities = 16
+cities, distances = create_random_problem(n_cities)
+print(cities)
+for l in distances:
+    print(l)
