@@ -6,3 +6,8 @@ from city import City
 class Connection:
     origin: City
     destination: City
+    
+    
+    def __lt__(self, other):
+        return self.origin < other.origin
+

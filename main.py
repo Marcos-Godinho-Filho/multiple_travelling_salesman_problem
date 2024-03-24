@@ -29,19 +29,23 @@ def nearest_neighbor_heuristic_from_0(distances: list):
     return tour
 
 
+def distance_between_cities (first: City, second: City):
+    return int(math.sqrt((second.x - first.x) ** 2 + (second.y - first.y) ** 2))
+
+
 def create_random_problem (n_cities: int):
     # create n cities and their coordinates
     cities: list[City] = []
-    for _ in range(n_cities):
+    for i in range(n_cities):
         x, y = int(random.uniform(0, 1000)), int(random.uniform(0, 1000))
-        city = City(x, y)
+        city = City(i, x, y)
         cities.append(city)
 
     # create distances array based on those coordinates
     distances = [[0 for _ in range(n_cities)] for __ in range(n_cities)]
     for i in range(n_cities):
         for j in range(i+1, n_cities):
-            distances[i][j] = distances[j][i] = int(math.sqrt((cities[j].x - cities[i].x) ** 2 + (cities[j].y - cities[i].y) ** 2))
+            distances[i][j] = distances[j][i] = distance_between_cities(cities[j], cities[i])
 
     return cities, distances
 
@@ -83,10 +87,6 @@ centroid = find_centroid_city(n_cities, distances, cities)
 draw_cities(cities, centroid)
 
 
-def distance_between_cities (first: City, second: City):
-    return int(math.sqrt((second.x - first.x) ** 2 + (second.y - first.y) ** 2))
-
-
 def create_polygon (n_cities: int, distances: list, cities: list[City], centroid: City):
     # sort cities from the farest to the nearest city from centroid
     cities_clone = cities.copy()
@@ -95,6 +95,10 @@ def create_polygon (n_cities: int, distances: list, cities: list[City], centroid
     # TODO: Consider using 'set'
 
     polygon_edges: list[Connection] = []
+    
+    cities_not_fully_connected_yet = cities_clone.copy()
+    
+    cities_already_popped: list[City] = []
 
     # for each far city from centroid
     while len(cities_clone) > 1:
@@ -102,16 +106,88 @@ def create_polygon (n_cities: int, distances: list, cities: list[City], centroid
         # now find the nearest city from that one
         #print(f'Far city: {far_city}')
         #print(cities_clone)
-        nearest_city = min(cities_clone, key = lambda city: distance_between_cities(far_city, city))
-        #print(f'Near city: {nearest_city}')
-        # create connection between cities
-        connection = Connection(far_city, nearest_city)
-        polygon_edges.append(connection)
+        cities_already_popped.append(far_city)
+        
+        number_of_connections_to_farthest_city = 0
+        for con in polygon_edges:
+            if con.origin == far_city or con.destination == far_city:
+                number_of_connections_to_farthest_city += 1
+                if number_of_connections_to_farthest_city == 4:
+                    break
+        
+        if number_of_connections_to_farthest_city < 4:    
+            cities_close_to_far_city = cities.copy()
+            cities_close_to_far_city.sort(key = lambda city: distance_between_cities(far_city, city), reverse=False)
+            
+            is_valid = False
+            c = 1
+            while not is_valid and c < n_cities:
+                nearest_city = cities_close_to_far_city[c]
+                if nearest_city == centroid or nearest_city in cities_already_popped:
+                    c += 1
+                    continue
+                #print(f'Near city: {nearest_city}')
+                # create connection between cities
+                # if nearest_city has less than two connections
+                number_of_connections_to_nearest_city = 0
+                for con in polygon_edges:
+                    if con.origin == nearest_city or con.destination == nearest_city:
+                        number_of_connections_to_nearest_city += 1
+                        if number_of_connections_to_nearest_city == 4:
+                            break
+                
+                if number_of_connections_to_nearest_city < 4:
+                    connection = Connection(far_city, nearest_city)
+                    polygon_edges.append(connection)
+                    
+                    connection2 = Connection(nearest_city, far_city)
+                    polygon_edges.append(connection2)
+                    
+                    # number_of_connections_to_nearest_city += 2
+                    # if number_of_connections_to_nearest_city == 4:
+                    if number_of_connections_to_nearest_city == 2:
+                        cities_not_fully_connected_yet.remove(nearest_city)
+                    is_valid = True
+                c += 1
+            
+                
+    # while len(cities_not_fully_connected_yet) > 1:
+    #     far_city = cities_not_fully_connected_yet.pop(0) # so 2 connections between same cities are created
+    #     # now find the nearest city from that one
+    #     #print(f'Far city: {far_city}')
+    #     #print(cities_clone)
+        
+    #     cities_close_to_far_city = cities.copy()
+    #     cities_close_to_far_city = sorted(cities_close_to_far_city, key = lambda city: distance_between_cities(far_city, city), reverse=False)
+        
+    #     is_valid = False
+    #     c = 1
+    #     while not is_valid:
+    #         nearest_city = cities_close_to_far_city[c]
+    #         if nearest_city == centroid:
+    #             c += 1
+    #             continue
+    #         #print(f'Near city: {nearest_city}')
+    #         # create connection between cities
+    #         # if nearest_city has less than two connections
+    #         number_of_connections_to_nearest_city = 0
+    #         for con in polygon_edges:
+    #             if con.origin == nearest_city or con.destination == nearest_city:
+    #                 number_of_connections_to_nearest_city += 1
+    #                 if number_of_connections_to_nearest_city == 2:
+    #                     break
+            
+    #         if number_of_connections_to_nearest_city < 2:
+    #             connection = Connection(far_city, nearest_city)
+    #             polygon_edges.append(connection)
+    #             is_valid = True
+    #         c += 1
     
     return polygon_edges
 
 
 p = create_polygon(n_cities, distances, cities, centroid)
+p.sort()
 
 def draw_polygon (centroid: City, polygon: list[Connection]):
     plt.clf()
@@ -119,6 +195,7 @@ def draw_polygon (centroid: City, polygon: list[Connection]):
     plt.scatter(centroid.x, centroid.y, color='blue')
 
     for edge in polygon:
+        print(str(edge.origin.id) + "," + str(edge.destination.id))
         plt.plot([edge.origin.x, edge.destination.x], [edge.origin.y, edge.destination.y], marker = 'o')
 
     plt.show()
@@ -132,6 +209,9 @@ draw_polygon(centroid, p)
     # [] Create polygon:
     #   [x] Find farest city
     #   [x] Find nearest city to the previous one
-    #   [] Create a connection between both
-    # [] Draw polygon
-    # [] Each sallesman will travel to one polygon 
+    #   [X] Create a connection between both
+    #   [] Create two connections per city (first and second nearest cities) to see what happens
+    #   [] Do cicle creation verification (if a path is going to create a cicle before all the cities except the centroid are connected, don't)
+    # [X] Draw polygon
+    # [] Each salesman will travel to one polygon (?)
+    # [Divide paths between the salesmen]
