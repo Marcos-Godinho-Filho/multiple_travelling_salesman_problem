@@ -193,7 +193,16 @@ def create_polygon (n_cities: int, distances: list, cities: list, centroid: City
             if number_of_connections_to_nearest_city < 2:
                 # if connection being created does not lead to a cycle
                 is_cycle = False
-                    
+                current = far_city.id
+                
+                cons_to_current = polygon_connections[current]
+                for i in len(cons_to_current):
+                    if cons_to_current[i] == 1:
+                        current = i
+                        cons_to_current = polygon_connections[current]
+                    if i == n_cities - 1:
+                        pass
+
                 if not is_cycle:
                     polygon_connections[far_city.id][nearest_city.id] = 1
                     is_valid = True
