@@ -90,12 +90,12 @@ draw_cities(cities, centroid)
 def create_polygon (n_cities: int, distances: list, cities: list[City], centroid: City):
     # sort cities from the farest to the nearest city from centroid
     cities_clone = cities.copy()
+    # TODO: Use distances matrix
     cities_clone.sort(key = lambda city: distance_between_cities(city, centroid), reverse = True)
-    # print(cities_clone)
-    # TODO: Consider using 'set'
 
     polygon_edges: list[Connection] = []
     
+    # it'll be used in the next step for connecting not connected edges (it starts with all cities)
     cities_not_fully_connected_yet = cities_clone.copy()
     
     cities_already_popped: list[City] = []
@@ -103,51 +103,66 @@ def create_polygon (n_cities: int, distances: list, cities: list[City], centroid
     # for each far city from centroid
     while len(cities_clone) > 1:
         far_city = cities_clone.pop(0) # so 2 connections between same cities are created
-        # now find the nearest city from that one
-        #print(f'Far city: {far_city}')
-        #print(cities_clone)
         cities_already_popped.append(far_city)
         
+        # if the farthest city already has 4 connections (2 cities connecting twice - back and forth), the connection
+        # cannot be created, since that city is already full of connections
         number_of_connections_to_farthest_city = 0
         for con in polygon_edges:
+            # if any connection has the far_city as origin or destination
             if con.origin == far_city or con.destination == far_city:
                 number_of_connections_to_farthest_city += 1
                 if number_of_connections_to_farthest_city == 4:
                     break
         
+        # if the far_city doesn't have 4 connections yet, it means that connections to it still can be created
         if number_of_connections_to_farthest_city < 4:    
+            # we'll then get the cities close to far_city
             cities_close_to_far_city = cities.copy()
-            cities_close_to_far_city.sort(key = lambda city: distance_between_cities(far_city, city), reverse=False)
+            cities_close_to_far_city.sort(key = lambda city: distance_between_cities(far_city, city))
             
+            # is True when it finds a city to which the connection with far_city can be created
             is_valid = False
+            # c will be used to iterate through cities_close_to_far_city. We'll check if th cth close city to far_city has 4 connections,
+            # if it does, that city cannot be connected to far_city. If it doesn't have 4 connections yet, that will be the city
+            # to be connected to far_city. It must starts with 1, since cities_close_to_far_city[0] is far_city itself, which
+            # means that far_city would have a connection to itself.
             c = 1
+            # while we don't find a city to connected or if we reach the end of the cities
             while not is_valid and c < n_cities:
+                # get cth close city to far_city
                 nearest_city = cities_close_to_far_city[c]
+                # the idea is to ignore the centroid. The second comparation prevents the creation of cycles
                 if nearest_city == centroid or nearest_city in cities_already_popped:
                     c += 1
                     continue
-                #print(f'Near city: {nearest_city}')
-                # create connection between cities
-                # if nearest_city has less than two connections
+
+                # now we'll count the connections to the nearest_city and see if far_city can connect to it
                 number_of_connections_to_nearest_city = 0
                 for con in polygon_edges:
+                    # if any connection has the nearest_city as origin or destination
                     if con.origin == nearest_city or con.destination == nearest_city:
                         number_of_connections_to_nearest_city += 1
                         if number_of_connections_to_nearest_city == 4:
                             break
                 
+                # if the cth nearest_city is not connected to 2 cities (twice - back and forth)
                 if number_of_connections_to_nearest_city < 4:
+                    # create connection from far_city to nearest_city
                     connection = Connection(far_city, nearest_city)
                     polygon_edges.append(connection)
                     
+                    # create connection from nearest_city to far_city
                     connection2 = Connection(nearest_city, far_city)
                     polygon_edges.append(connection2)
                     
-                    # number_of_connections_to_nearest_city += 2
-                    # if number_of_connections_to_nearest_city == 4:
+                    # if nearest_city already made 2 connections (to 1 city), now it makes 4 (with 2 cities). Now 
+                    # nearest_city is fully connected
                     if number_of_connections_to_nearest_city == 2:
                         cities_not_fully_connected_yet.remove(nearest_city)
+                    # found a city to connect
                     is_valid = True
+                # otherwise, if the cth nearest_city have 4 connections (with 2 cities), go to the next one
                 c += 1
             
                 
