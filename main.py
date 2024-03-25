@@ -1,7 +1,7 @@
 import random
 import math
 import matplotlib.pyplot as plt
-from city import City
+from types.city import City
 
 
 def nearest_neighbor_heuristic_from_0(distances: list):
