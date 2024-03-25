@@ -2,7 +2,6 @@ import random
 import math
 import matplotlib.pyplot as plt
 from city import City
-from connection import Connection
 
 
 def nearest_neighbor_heuristic_from_0(distances: list):
