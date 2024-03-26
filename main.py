@@ -4,6 +4,10 @@
 import random
 import math
 import matplotlib.pyplot as plt
+<<<<<<< Updated upstream
+=======
+from typing import List
+>>>>>>> Stashed changes
 from entities.city import City
 
 
@@ -11,7 +15,7 @@ def distance_between_cities (first: City, second: City):
     return int(math.sqrt((second.x - first.x) ** 2 + (second.y - first.y) ** 2))
 
 
-def count_connections_to_city (city_id: int, n_cities: int, polygon_connections: list[list[int]]):
+def count_connections_to_city (city_id: int, n_cities: int, polygon_connections: List[List[int]]):
     # iterate through connections to city
     connections_to_city = polygon_connections[city_id]
     n_connections = 0
@@ -85,7 +89,7 @@ centroid = find_centroid_city(n_cities, distances, cities)
 draw_cities(cities, centroid)
 
 
-def draw_polygon (centroid: City, n_cities: int, cities: list[City], polygon: list[list[int]]):
+def draw_polygon (centroid: City, n_cities: int, cities: List[City], polygon: List[List[int]]):
     plt.clf()
 
     plt.scatter(centroid.x, centroid.y, color='blue')
@@ -105,7 +109,7 @@ def draw_polygon (centroid: City, n_cities: int, cities: list[City], polygon: li
     plt.show()
 
 
-def create_polygon (n_cities: int, distances: list, cities: list[City], centroid: City) -> list[list[int]]:
+def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City], centroid: City) -> List[List[int]]:
 
     # represents the connection between cities
     polygon_connections = [[0 for _ in range(0, n_cities)] for _ in range(0, n_cities)]
@@ -205,3 +209,35 @@ def create_polygon (n_cities: int, distances: list, cities: list[City], centroid
 
 p = create_polygon(n_cities, distances, cities, centroid)
 p.sort()
+<<<<<<< Updated upstream
+=======
+
+def split_path_between_salesmen(N: int, M: int, polygon_connections: List[List[int]], distances: List[List[int]], centroid: City):
+    # aproximate number of cities to be visited by each salesman
+    X = int(N/M)
+
+    last_visits_one_more = False
+    if N % M == 1:
+        last_visits_one_more = True
+
+    already_visited = list()
+
+    centroid_id = centroid.id
+    distances_to_centroid = distances[centroid_id]
+    current = distances_to_centroid.index(min(distances_to_centroid))
+
+    n_already_visited_by_one_salesman = 0
+
+    for i in range(N):
+        cons_to_current = polygon_connections[current]
+        n_already_visited_by_one_salesman += 1
+        for j in range(N):
+            if cons_to_current[j] == 1 and j not in already_visited and j != centroid_id:
+                if n_already_visited_by_one_salesman == X:
+                    if last_visits_one_more and i == N - 2:
+                        pass
+                
+                current = i
+                break
+       
+>>>>>>> Stashed changes
