@@ -1,3 +1,6 @@
+# Lines 26-31: https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
+
+
 import random
 import math
 import matplotlib.pyplot as plt
@@ -18,6 +21,14 @@ def count_connections_to_city (city_id: int, n_cities: int, polygon_connections:
             n_connections += 1
 
     return n_connections
+
+
+def ccw(A, B, C):
+    return (C.y-A.y) * (B.x-A.x) > (B.y-A.y) * (C.x-A.x)
+
+# Return true if line segments AB and CD intersect
+def intersect(A, B, C, D):
+    return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
 
 
 def create_random_problem (n_cities: int):
@@ -94,25 +105,82 @@ def draw_polygon (centroid: City, n_cities: int, cities: list[City], polygon: li
     plt.show()
 
 
-def create_polygon (n_cities: int, distances: list, cities: list, centroid: City) -> list[list[int]]:
-    # sort cities from the farest to the nearest city from centroid
-    cities_clone = cities.copy()
-    # TODO: Use distances matrix
-    cities_clone.sort(key = lambda city: distance_between_cities(city, centroid), reverse = True)
+def create_polygon (n_cities: int, distances: list, cities: list[City], centroid: City) -> list[list[int]]:
 
     # represents the connection between cities
     polygon_connections = [[0 for _ in range(0, n_cities)] for _ in range(0, n_cities)]
     
     # TODO:
-    # [] Create connections from centroid to all cities
+    # [x] Create connections from centroid to all cities
+    centroid_index = cities.index(centroid)
+    for i in range(n_cities):
+        city = cities[i]
+        if city != centroid:
+            polygon_connections[i][centroid_index] = 1
+            polygon_connections[centroid_index][i] = 1
+    
+    
+    # sort cities from the nearest to the farthest city from centroid
+    cities_clone = cities.copy()
+    cities_clone.sort(key = lambda city: distances[centroid_index][city.id])
+    cities_clone.remove(centroid)
+    print(cities_clone)
+    
     # [] Starting from the nearest to centroid (city C):
-    #   [] Get n nearest cities to C (c)
+    #   [x] Get n nearest cities to C (c)
+    fully_connected_cities = []
+    for city in cities_clone:
+        # This for loop will iterate through the cities near to centroid. From nearest to farthest
+        nearest_cities = cities_clone.copy()
+        nearest_cities.sort(key = lambda other_city: distances[other_city.id][city.id])
+        nearest_cities.remove(city)
+
+        number_of_connections = count_connections_to_city(city.id, n_cities, polygon_connections)
+        # -1 in order to disconsider the constant connection with centroid and oly consider connections between cities
+
+        if number_of_connections < 3:
+            for nearest_city in nearest_cities:
+                if count_connections_to_city(nearest_city.id, n_cities, polygon_connections) < 3 and not nearest_city in fully_connected_cities: 
+                    # This for loop will iterate through the cities near to city. It's important because being the
+                    # nearest city does not mean the connection will be created, since that may be a intersection.
+                    # Here we have 2 of the 4 points needed to check an intersection:
+                    # 1 - The nearest city (C) to centroid
+                    # 2 - The nearest city (c) to C
+                    # Obs: nearest city must not be fully connnected yet, otherwise cycles would be created
+                    remaining_cities = nearest_cities.copy()
+                    remaining_cities.remove(nearest_city)
+
+                    for remaining_city in remaining_cities:
+                        # This for loop will iterate through the remaining cities (that not the centroid, city C and city c)
+                        # Here we have the remaing 2 points needed to check an intersection:
+                        # 3 - Any other city
+                        # 4 - The centroid
+                        has_intersection = intersect(city, nearest_city, remaining_city, centroid)
+                        # If there is any intersection, stop and check the next nearest city
+                        if has_intersection:
+                            break
+                    else:
+                        polygon_connections[city.id][nearest_city.id] = 1
+                        polygon_connections[nearest_city.id][city.id] = 1
+                        number_of_connections += 1
+                    
+                    if number_of_connections == 3: # between cities
+                        fully_connected_cities.append(city)
+                        break
+
+    for i in range(n_cities):
+        city = cities[i]
+        if city != centroid:
+            polygon_connections[i][centroid_index] = 0
+            polygon_connections[centroid_index][i] = 0
+    
+
     #   [] Check whether there is a intersection between: C - c and any city - centroid
+    
     #   [] If there is, move to next one
     #   [] Otherwise, create connections (each city must have 3 connections)
-    # [] From starting point (centroid in the first case), go to nearest city, and move N / M cities, then go back to starting point (centroid in the first case): this will be the salesmen travel
-    
-    
+    # [] From centroid, go to nearest city, and move N / M cities, then go back to centroid: this will be the salesmen travel
+     
     draw_polygon(centroid, n_cities, cities, polygon_connections)
 
     return polygon_connections
@@ -122,4 +190,3 @@ p = create_polygon(n_cities, distances, cities, centroid)
 p.sort()
 
 
-draw_polygon(centroid, n_cities, cities, p)
