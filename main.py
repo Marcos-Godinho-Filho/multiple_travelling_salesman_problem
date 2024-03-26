@@ -32,6 +32,25 @@ def intersect(A, B, C, D):
     return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
 
 
+def has_cycle(n_cities: int, cities: List[City], polygon_connections: List[List[int]], start_city: City, end_city: City):
+    visited = [False] * n_cities
+    stack = [start_city]
+
+    while stack:
+        current = stack.pop()
+
+        if visited[start_city.id]:
+            return True
+        
+        visited[start_city.id] = True
+
+        for neighbor in cities:
+            if polygon_connections[current.id][neighbor.id] == 1:
+                stack.append(neighbor)
+    
+    return False
+
+
 def create_random_problem (n_cities: int):
     # create n cities and their coordinates
     cities: list[City] = []
@@ -164,28 +183,6 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
                             break
                     else:
                         # [] Verify cycles
-                        is_cycle = False
-                        current = city.id
-
-                        i = 0
-                        cons_to_current = polygon_connections[current]
-                        already_visited = []
-                        while i < len(cons_to_current):
-                            # this means that there is a connection between far_city and nearest_city, which will
-                            # then result in a cycle
-                            if i == nearest_city.id:
-                                is_cycle = True
-                                break
-                            
-                            if cons_to_current[i] == 1 and not i in already_visited:
-                                # we must keep track of the cities already visited in order not to fall into a loop,
-                                # by going to city Y then going back to X and so on
-                                already_visited.append(current)
-                                current = i
-                                cons_to_current = polygon_connections[current]
-                                i = 0
-                            else:
-                                i += 1
                         
                         # if no cycle was found between far_city and nearest_city, that means they can 
                         # be connected without creating a cycle
