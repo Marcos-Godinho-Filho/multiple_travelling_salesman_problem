@@ -208,30 +208,63 @@ p = create_polygon(n_cities, distances, cities, centroid)
 p.sort()
 
 def split_path_between_salesmen(N: int, M: int, polygon_connections: List[List[int]], distances: List[List[int]], centroid: City):
+    tours: List[List[int]] = list()
+    
     # aproximate number of cities to be visited by each salesman
     X = int(N/M)
-
-    last_visits_one_more = False
-    if N % M == 1:
-        last_visits_one_more = True
 
     already_visited = list()
 
     centroid_id = centroid.id
     distances_to_centroid = distances[centroid_id]
+
     current = distances_to_centroid.index(min(distances_to_centroid))
 
     n_already_visited_by_one_salesman = 0
+    salesman_ix = 0
 
-    for i in range(N):
+    for i in range(M):
+        tours.append([])
+
+    # inits by travelling from centroid to nearest city to centroid 
+    tours[salesman_ix].append(centroid_id)
+    tours[salesman_ix].append(current)
+
+    for i in range(N - 1):
+        # goes to next city in path defined in polygon_connections
         cons_to_current = polygon_connections[current]
-        n_already_visited_by_one_salesman += 1
         for j in range(N):
             if cons_to_current[j] == 1 and j not in already_visited and j != centroid_id:
-                if n_already_visited_by_one_salesman == X:
-                    if last_visits_one_more and i == N - 2:
-                        pass
-                
                 current = i
-                break
-       
+                tours[salesman_ix].append(i)
+
+        # if number of cities visited == X, comes back to centroid, switches travelling salesman, leaves centroid and goes to next city 
+        n_already_visited_by_one_salesman += 1
+        if n_already_visited_by_one_salesman == X:
+            # if reached supposed last city and there is still a city to be visited
+            if i == N - 2:
+                tours[salesman_ix].append(current)
+                continue
+            tours[salesman_ix].append(centroid_id)
+            n_already_visited_by_one_salesman = 0
+            salesman_ix += 1
+            tours[salesman_ix].append(centroid_id)
+            tours[salesman_ix].append(current)
+
+    tours[salesman_ix].append(centroid_id)
+
+    return tours
+
+
+def draw_solution(tours: List[List[int]], cities: List[City]):
+    plt.clf()
+
+    # for edge in polygon:
+    #   print(str(edge.origin.id) + "," + str(edge.destination.id))
+    #    plt.plot([edge.origin.x, edge.destination.x], [edge.origin.y, edge.destination.y], marker = 'o')
+
+    for t in tours:
+        for i in range(len(t) - 1):
+            plt.plot([cities[i].x, cities[i+1].x], [cities[i].y, cities[i+1].y], marker = 'o')
+
+    plt.show()
