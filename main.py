@@ -149,6 +149,7 @@ def create_polygon (n_cities: int, distances: list, cities: list, centroid: City
                 if number_of_connections_to_nearest_city < 2:
                     # create connection from far_city to nearest_city
                     polygon_connections[far_city.id][nearest_city.id] = 1
+                    polygon_connections[nearest_city.id][far_city.id] = 1
                     
                     # if nearest_city already made 1 connection, now it makes 2. Now 
                     # nearest_city is fully connected
