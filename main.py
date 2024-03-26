@@ -4,10 +4,7 @@
 import random
 import math
 import matplotlib.pyplot as plt
-<<<<<<< Updated upstream
-=======
 from typing import List
->>>>>>> Stashed changes
 from entities.city import City
 
 
@@ -209,8 +206,6 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
 
 p = create_polygon(n_cities, distances, cities, centroid)
 p.sort()
-<<<<<<< Updated upstream
-=======
 
 def split_path_between_salesmen(N: int, M: int, polygon_connections: List[List[int]], distances: List[List[int]], centroid: City):
     # aproximate number of cities to be visited by each salesman
@@ -240,4 +235,3 @@ def split_path_between_salesmen(N: int, M: int, polygon_connections: List[List[i
                 current = i
                 break
        
->>>>>>> Stashed changes
