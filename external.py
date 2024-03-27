@@ -3,7 +3,7 @@ Lines 12 to 19:
 Copied from: https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
 
 Lines 22 - 38:
-Modification from:
+Modification from: https://chat.openai.com/share/d707df2b-a620-421a-be0f-b768b2931dc1
 '''
 from typing import List
 from entities.city import City

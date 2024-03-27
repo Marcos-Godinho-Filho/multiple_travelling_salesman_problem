@@ -157,11 +157,11 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
                         
                         # if no cycle was found between far_city and nearest_city, that means they can 
                         # be connected without creating a cycle
-                        if not is_cycle:
-                            # [x] Otherwise, create connections (each city must have 3 connections)
-                            polygon_connections[city.id][nearest_city.id] = 1
-                            polygon_connections[nearest_city.id][city.id] = 1
-                            number_of_connections += 1
+                        
+                        # [x] Otherwise, create connections (each city must have 3 connections)
+                        polygon_connections[city.id][nearest_city.id] = 1
+                        polygon_connections[nearest_city.id][city.id] = 1
+                        number_of_connections += 1
                     
                     if number_of_connections == 3: # between cities
                         fully_connected_cities.append(city)
@@ -198,6 +198,7 @@ def split_path_between_salesmen(N: int, M: int, polygon_connections: List[List[i
     tours[salesman_ix].append(current)
 
     for i in range(N - 1):
+        # ignores last city, since it must not connect to the next one, but to the centroid
         cons_to_current = polygon_connections[current]
         # iterates through the connections to current city
         for j in range(N):
@@ -209,7 +210,10 @@ def split_path_between_salesmen(N: int, M: int, polygon_connections: List[List[i
         # if number of cities visited == X, comes back to centroid, switches travelling salesman, leaves centroid and goes to next city 
         n_already_visited_by_one_salesman += 1
         if n_already_visited_by_one_salesman == cities_per_salesman:
-            # if reached supposed last city and there is still a city to be visited
+            # Salesman visited all cities he had to, but he is in the anti-last city, which means
+            # that there is a city left (e.g: N = 10, M = 3, N/M = 3. When the 3rd salesman finishes visiting
+            # the 3 cities he has to, but he will be at the anti-last city - since we ignore the last with N - 1.
+            # That means there is one city to be visited)
             if i == N - 2:
                 tours[salesman_ix].append(current)
                 continue
@@ -224,6 +228,19 @@ def split_path_between_salesmen(N: int, M: int, polygon_connections: List[List[i
     tours[salesman_ix].append(centroid.id)
 
     return tours
+
+tours = split_path_between_salesmen(n_cities, 1, p, distances, centroid)
+
+def walk_through_tours(tours: list[list[int]], distances: list[list[int]]):
+    total_distance = 0
+
+    for tour in tours:
+        for i in range(len(tour) - 1):
+            origin = tour[i]
+            destination = tour[i+1]
+            total_distance += distances[origin][destination]
+    
+    return total_distance
 
 
 def draw_solution(tours: List[List[int]], cities: List[City]):
