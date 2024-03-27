@@ -167,7 +167,7 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
                         con = polygon_connections[previous_ix]
                         previous_previous_ix = 0
                         for i in range(n_cities):
-                            if con[i] == 1:
+                            if con[i] == 1 and i != previous_ix:
                                 previous_previous_ix = i
                         if previous_previous_ix == nearest_city:
                             is_cycle = True
