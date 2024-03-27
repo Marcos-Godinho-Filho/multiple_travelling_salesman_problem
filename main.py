@@ -1,15 +1,13 @@
-# Lines 26-31: https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
-
-
-import random
-import math
-import matplotlib.pyplot as plt
 from typing import List
 from entities.city import City
+from external import *
+from math import sqrt
+import random
+import matplotlib.pyplot as plt
 
 
 def distance_between_cities (first: City, second: City):
-    return int(math.sqrt((second.x - first.x) ** 2 + (second.y - first.y) ** 2))
+    return int(sqrt((second.x - first.x) ** 2 + (second.y - first.y) ** 2))
 
 
 def count_connections_to_city (city_id: int, n_cities: int, polygon_connections: List[List[int]]):
@@ -22,33 +20,6 @@ def count_connections_to_city (city_id: int, n_cities: int, polygon_connections:
             n_connections += 1
 
     return n_connections
-
-
-def ccw(A, B, C):
-    return (C.y-A.y) * (B.x-A.x) > (B.y-A.y) * (C.x-A.x)
-
-# Return true if line segments AB and CD intersect
-def intersect(A, B, C, D):
-    return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
-
-
-def has_cycle(n_cities: int, cities: List[City], polygon_connections: List[List[int]], start_city: City, end_city: City):
-    visited = [False] * n_cities
-    stack = [start_city]
-
-    while stack:
-        current = stack.pop()
-
-        if visited[start_city.id]:
-            return True
-        
-        visited[start_city.id] = True
-
-        for neighbor in cities:
-            if polygon_connections[current.id][neighbor.id] == 1:
-                stack.append(neighbor)
-    
-    return False
 
 
 def create_random_problem (n_cities: int):
