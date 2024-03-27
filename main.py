@@ -208,47 +208,49 @@ def split_path_between_salesmen(N: int, M: int, polygon_connections: List[List[i
     tours: List[List[int]] = list()
     
     # aproximate number of cities to be visited by each salesman
-    X = int(N/M)
+    cities_per_salesman = int(N/M)
 
     already_visited = list()
 
-    centroid_id = centroid.id
-    distances_to_centroid = distances[centroid_id]
-
+    # gets the nearest city to centroid
+    distances_to_centroid = distances[centroid.id]
     current = distances_to_centroid.index(min(distances_to_centroid))
 
     n_already_visited_by_one_salesman = 0
     salesman_ix = 0
 
     for i in range(M):
-        tours.append([])
+        # each salesman will always start from centroid
+        tours.append([centroid.id])
 
     # inits by travelling from centroid to nearest city to centroid 
-    tours[salesman_ix].append(centroid_id)
     tours[salesman_ix].append(current)
 
     for i in range(N - 1):
-        # goes to next city in path defined in polygon_connections
         cons_to_current = polygon_connections[current]
+        # iterates through the connections to current city
         for j in range(N):
-            if cons_to_current[j] == 1 and j not in already_visited and j != centroid_id:
+            # if it finds a connection that has not been visited and is not the centroid
+            if cons_to_current[j] == 1 and j not in already_visited and j != centroid.id:
                 current = i
                 tours[salesman_ix].append(i)
 
         # if number of cities visited == X, comes back to centroid, switches travelling salesman, leaves centroid and goes to next city 
         n_already_visited_by_one_salesman += 1
-        if n_already_visited_by_one_salesman == X:
+        if n_already_visited_by_one_salesman == cities_per_salesman:
             # if reached supposed last city and there is still a city to be visited
             if i == N - 2:
                 tours[salesman_ix].append(current)
                 continue
-            tours[salesman_ix].append(centroid_id)
+            # each salesman will always go back to centroid after going to cities_per_salesman cities
+            tours[salesman_ix].append(centroid.id)
+            # new salesman
             n_already_visited_by_one_salesman = 0
             salesman_ix += 1
-            tours[salesman_ix].append(centroid_id)
             tours[salesman_ix].append(current)
 
-    tours[salesman_ix].append(centroid_id)
+    # the last salesman must also go back to centroid
+    tours[salesman_ix].append(centroid.id)
 
     return tours
 
