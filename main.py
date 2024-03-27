@@ -157,6 +157,21 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
                         
                         # if no cycle was found between far_city and nearest_city, that means they can 
                         # be connected without creating a cycle
+
+                        is_cycle = False
+                        con = polygon_connections[city.id]
+                        previous_ix = 0
+                        for i in range(n_cities):
+                            if con[i] == 1:
+                                previous_ix = i
+                        con = polygon_connections[previous_ix]
+                        previous_previous_ix = 0
+                        for i in range(n_cities):
+                            if con[i] == 1:
+                                previous_previous_ix = i
+                        if previous_previous_ix == nearest_city:
+                            is_cycle = True
+                
                         if not is_cycle:
                             # [x] Otherwise, create connections (each city must have 3 connections)
                             polygon_connections[city.id][nearest_city.id] = 1
