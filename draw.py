@@ -27,11 +27,8 @@ def draw_polygon (centroid: City, n_cities: int, cities: List[City], polygon: Li
                 origin = cities[i]
                 destination = cities[j]
                 
-                color = 'r'
-                if i == centroid.id or j == centroid.id:
-                    color = 'b'
-
-                plt.plot([origin.x, destination.x], [origin.y, destination.y], color=color, marker='o')
+                if i != centroid.id and j != centroid.id:
+                    plt.plot([origin.x, destination.x], [origin.y, destination.y], color='r', marker='o')
 
     plt.show()
 

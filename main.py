@@ -1,7 +1,7 @@
 from heuristic import *
 from draw import *
 
-n_cities = 16
+n_cities = 100
 m_salesman = 3
 cities, distances = create_random_problem(n_cities)
 
