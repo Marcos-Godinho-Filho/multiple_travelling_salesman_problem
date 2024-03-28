@@ -22,3 +22,13 @@ The Multiple Traveling Salesman Problem (mTSP) is a generalization of the Travel
 
 #### Results:
 - Accuracy: %% (tests table here)
+
+#### How to run:
+- Create virtual environment:
+`python3 -m venv .venv`
+- Activate it:
+  - For MACOS: `.venv/bin/activate`
+  - For Windows: `.venv/Scripts/activate`
+- Install dependencies:
+`pip install -r requirements.txt`
+- Run `main.py`
