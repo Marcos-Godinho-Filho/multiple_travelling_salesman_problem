@@ -48,6 +48,7 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
     # represents the connection between cities
     polygon_connections = [[0 for _ in range(0, n_cities)] for _ in range(0, n_cities)]
     
+    # connects every city to centroid
     centroid_index = cities.index(centroid)
     for i in range(n_cities):
         city = cities[i]
@@ -61,35 +62,45 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
     cities_clone.sort(key = lambda city: distances[centroid_index][city.id])
     cities_clone.remove(centroid)
     
-    # [] Starting from the nearest to centroid (city C):
-    #   [x] Get n nearest cities to C (c)
+    # Starting from the nearest to centroid
     fully_connected_cities = []
     for ix, city in enumerate(cities_clone):
         # This for loop will iterate through the cities near to centroid. From nearest to farthest
         nearest_cities = cities_clone.copy()
         nearest_cities.sort(key = lambda other_city: distances[other_city.id][city.id])
+        # removes city not to create a connection to itself
         nearest_cities.remove(city)
 
+        # counts connections to this city, in order not to create more than 3 connections
         number_of_connections = count_connections_to_city(city.id, n_cities, polygon_connections)
 
         # 3 connections = 2 between cities and 1 to centroid
         if number_of_connections < 3:
             for nearest_city in nearest_cities:
+                # This for loop will iterate through the cities near to city. It's important because being the
+                # nearest city does not mean the connection will be created, since that may be a intersection.
+
+                # counts connections to nearest city, in order not to create more than 3 connections
                 if count_connections_to_city(nearest_city.id, n_cities, polygon_connections) < 3 and not nearest_city in fully_connected_cities: 
                     if ix == n_cities - 1:
+                        # here we check if we are in the last city. Below, we check if cycles between city and nearest city will be created,
+                        # if so, the connection must not be made. Although, note that, between the first city and the last city, exists a natural
+                        # cycle. This cycle MUST exists. That's why we're checking if we are in the last city, because the nearest city to it
+                        # is the first city, and we force this connection to exist.
                         polygon_connections[city.id][nearest_city.id] = 1
                         polygon_connections[nearest_city.id][city.id] = 1
                         number_of_connections += 1
                     else:
-                         # This for loop will iterate through the cities near to city. It's important because being the
-                        # nearest city does not mean the connection will be created, since that may be a intersection.
                         # Here we have 2 of the 4 points needed to check an intersection:
                         # 1 - The nearest city (C) to centroid
                         # 2 - The nearest city (c) to C
                         # Obs: nearest city must not be fully connnected yet, otherwise cycles would be created
                         remaining_cities = nearest_cities.copy()
+                        # remove nearest city in order to, when iterating through the remaining cities, this one not be
+                        # considered, since it would be check the insersection: Cc - ccentroid, which is nearest city itself (an angle is formed)
                         remaining_cities.remove(nearest_city)
-                        # Check whether there is a intersection between: C - c and any city - centroid
+
+                        # Check whether there is a intersection between: C - c and any remainin_city - centroid
                         for remaining_city in remaining_cities:
                             # This for loop will iterate through the remaining cities (that not the centroid, city C and city c)
                             # Here we have the remaing 2 points needed to check an intersection:
@@ -100,8 +111,7 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
                             if has_intersection:
                                 break
                         else:
-                            # if no cycle was found between far_city and nearest_city, that means they can 
-                            # be connected without creating a cycle
+                            # if a cycle is found between far_city and nearest_city, that means they cannot be connected
 
                             # if going back to the previous city (that not the centroid), and any time arrives at nearest city, 
                             # that means a cycle would be created
@@ -127,7 +137,7 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
                                 polygon_connections[nearest_city.id][city.id] = 1
                                 number_of_connections += 1
                     
-                    if number_of_connections == 3: # between cities
+                    if number_of_connections == 3:
                         fully_connected_cities.append(city)
                         break
 
