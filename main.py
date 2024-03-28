@@ -6,7 +6,7 @@ m_salesman = 3
 cities, distances = create_random_problem(n_cities)
 
 
-centroid = find_centroid_city(n_cities, distances, cities)
+centroid = find_centroid_city(distances, cities)
 draw_cities(cities, centroid)
 
 polygon = create_polygon(n_cities, distances, cities, centroid)

@@ -38,18 +38,10 @@ def create_random_problem (n_cities: int):
     return cities, distances
 
 
-def find_centroid_city (n_cities: int, distances: list, cities: list):
-    centroid_city, centroid_distances = None, float('inf')
-    for city in range(n_cities):
-        # for each city, calculate sum of distances to every other city
-        distances_sum = 0
-        for distance in distances[city]: 
-            distances_sum += distance
+def find_centroid_city (distances: list, cities: list):
+    centroid_city = min(cities, key = lambda city: sum(distances[city.id]))
 
-        if distances_sum < centroid_distances:
-            centroid_city, centroid_distances = city, distances_sum
-    
-    return cities[centroid_city]
+    return cities[centroid_city.id]
 
 
 def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City], centroid: City) -> List[List[int]]:
