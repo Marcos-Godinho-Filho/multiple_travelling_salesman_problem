@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 
 def distance_between_cities (first: City, second: City):
-    return int(sqrt((second.x - first.x) ** 2 + (second.y - first.y) ** 2))
+    return sqrt((second.x - first.x) ** 2 + (second.y - first.y) ** 2)
 
 
 def count_connections_to_city (city_id: int, n_cities: int, polygon_connections: List[List[int]]):

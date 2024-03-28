@@ -1,7 +1,7 @@
 from functions import *
 
-n_cities = 16
-m_salesman = 2
+n_cities = 101
+m_salesman = 20
 cities, distances = create_random_problem(n_cities)
 #print(cities)
 #for l in distances:
