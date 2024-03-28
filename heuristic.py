@@ -115,21 +115,26 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
 
                             # if going back to the previous city (that not the centroid), and any time arrives at nearest city, 
                             # that means a cycle would be created
-                            is_cycle = False
-                            is_end = False
+                            is_cycle = is_end = False
                             current = city.id
                             already_visited = [current]
+                            # while doesn't reach the end of cities or untill doesn't find a cycle
                             while not is_end and not is_cycle:
                                 con = polygon_connections[current]
                                 for i in range(n_cities):
                                     if con[i] == 1 and i != centroid_index and i not in already_visited:
+                                        # goes to the first connection it finds
                                         current = i
                                         already_visited.append(current)
                                         break
+                                    # reached the end of cities
                                     elif i == n_cities - 1:
                                         is_end = True
                                         break
+                                # the second condition checks if we are not in that last - first city case
                                 if current == nearest_city.id and len(already_visited) != n_cities - 1:
+                                    # if we're not in the end, but somehow got to the nearest city starting from city,
+                                    # that means that, if the connection was made, it would have a cycle
                                     is_cycle = True
                     
                             if not is_cycle:
