@@ -159,7 +159,7 @@ def split_path_between_salesmen(N: int, M: int, polygon_connections: List[List[i
     # N/M might not be exact and some cities might be missing because of the division. Therefore, the last salesman, will travel
     # cities_per_salesman cities AND those remaining. E.g: 16 / 3 = 5 and rest 1. The last salesman will travel 5 + 1 = 6 cities.
     # Because of this, he'll be handled separately
-    for i in range(M - 1):
+    for salesman in range(M):
         # i = salesman index
         for j in range(cities_per_salesman):
             # j = Nth city the saleman must visit
@@ -170,23 +170,22 @@ def split_path_between_salesmen(N: int, M: int, polygon_connections: List[List[i
                     current = k
                     break
             # The Ith tour will receive the city we are now, and it'll be considered visited
-            tours[i].append(current)
+            tours[salesman].append(current)
             already_visited.append(current)
+        
+        if salesman == M - 1:
+            # last salesman travels the number of cities he was supposed to visit + remaining cities
+            for i in range(rest):
+                con = polygon_connections[current]
+                for j in range(N):
+                    if con[j] == 1 and j not in already_visited and j != centroid.id:
+                        current = j
+                        break
+                tours[salesman].append(current)
+                already_visited.append(current)
 
         # by the end of the tour, when the salesman finishes travelling through the cities he is supposed to, he must go back to centroid    
-        tours[i].append(centroid.id)
-    
-    # last salesman travels the number of cities he was supposed to visit + remaining cities
-    for i in range(cities_per_salesman + rest):
-        con = polygon_connections[current]
-        for j in range(N):
-            if con[j] == 1 and j not in already_visited and j != centroid.id:
-                current = j
-                break
-        tours[M - 1].append(current)
-        already_visited.append(current)
-        
-    tours[M - 1].append(centroid.id)
+        tours[salesman].append(centroid.id)
 
     return tours
 
