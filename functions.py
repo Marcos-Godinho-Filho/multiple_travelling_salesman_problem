@@ -247,8 +247,15 @@ def draw_solution(tours: List[List[int]], cities: List[City]):
     #   print(str(edge.origin.id) + "," + str(edge.destination.id))
     #    plt.plot([edge.origin.x, edge.destination.x], [edge.origin.y, edge.destination.y], marker = 'o')
 
+    colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
+    ix_colors = 0
+
     for t in tours:
+        ix_colors += 1
+        if ix_colors == 7:
+            ix_colors = 0
+            
         for i in range(len(t) - 1):
-            plt.plot([cities[t[i]].x, cities[t[i+1]].x], [cities[t[i]].y, cities[t[i+1]].y], marker = 'o')
+            plt.plot([cities[t[i]].x, cities[t[i+1]].x], [cities[t[i]].y, cities[t[i+1]].y], color=colors[ix_colors], marker = 'o')
 
     plt.show()
