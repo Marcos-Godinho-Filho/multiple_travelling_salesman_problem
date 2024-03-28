@@ -42,9 +42,11 @@ def draw_solution(tours: List[List[int]], cities: List[City]):
     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
     color = 0
 
-    for t in tours:  
-        for i in range(len(t) - 1):
-            plt.plot([cities[t[i]].x, cities[t[i+1]].x], [cities[t[i]].y, cities[t[i+1]].y], color=colors[color], marker = 'o')
+    for tour in tours:  
+        for i in range(len(tour) - 1):
+            origin = tour[i]
+            destination = tour[i+1]
+            plt.plot([cities[origin].x, cities[destination].x], [cities[origin].y, cities[destination].y], color=colors[color], marker = 'o')
 
         color += 1
         if color == 7:

@@ -140,6 +140,7 @@ def split_path_between_salesmen(N: int, M: int, polygon_connections: List[List[i
     # aproximate number of cities to be visited by each salesman
     # N - 1 because we disconsider the centroid
     cities_per_salesman = int((N-1)/M)
+    # rest will be helpful for handling the last salesman
     rest = (N - 1) % M
 
     already_visited = list()
@@ -155,20 +156,27 @@ def split_path_between_salesmen(N: int, M: int, polygon_connections: List[List[i
     # inits by travelling from centroid to nearest city to centroid 
     already_visited.append(current)
 
-    # M - 1 because the last salesman usually travels more than the others
+    # N/M might not be exact and some cities might be missing because of the division. Therefore, the last salesman, will travel
+    # cities_per_salesman cities AND those remaining. E.g: 16 / 3 = 5 and rest 1. The last salesman will travel 5 + 1 = 6 cities.
+    # Because of this, he'll be handled separately
     for i in range(M - 1):
+        # i = salesman index
         for j in range(cities_per_salesman):
+            # j = Nth city the saleman must visit
             con = polygon_connections[current]
             for k in range(N):
+                # k = iterate through connected cities to jth city
                 if con[k] == 1 and k not in already_visited and k != centroid.id:
                     current = k
                     break
+            # The Ith tour will receive the city we are now, and it'll be considered visited
             tours[i].append(current)
             already_visited.append(current)
-            
+
+        # by the end of the tour, when the salesman finishes travelling through the cities he is supposed to, he must go back to centroid    
         tours[i].append(centroid.id)
     
-    # last salesman travels also remaining cities
+    # last salesman travels the number of cities he was supposed to visit + remaining cities
     for i in range(cities_per_salesman + rest):
         con = polygon_connections[current]
         for j in range(N):
