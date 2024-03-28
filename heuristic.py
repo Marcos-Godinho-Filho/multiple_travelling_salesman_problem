@@ -45,7 +45,6 @@ def find_centroid_city (distances: list, cities: list):
 
 
 def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City], centroid: City) -> List[List[int]]:
-
     # represents the connection between cities
     polygon_connections = [[0 for _ in range(0, n_cities)] for _ in range(0, n_cities)]
     
@@ -101,10 +100,11 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
                             if has_intersection:
                                 break
                         else:
-                        # if no cycle was found between far_city and nearest_city, that means they can 
-                        # be connected without creating a cycle
-                        
-                        # se eu ando para tras da cidade que eu estou, sempre indo da cidade ja conectada fora o centroid, e chego na cidade mais proxima em algum momento, entao um ciclo sera formado
+                            # if no cycle was found between far_city and nearest_city, that means they can 
+                            # be connected without creating a cycle
+
+                            # if going back to the previous city (that not the centroid), and any time arrives at nearest city, 
+                            # that means a cycle would be created
                             is_cycle = False
                             is_end = False
                             current = city.id
@@ -182,6 +182,7 @@ def split_path_between_salesmen(N: int, M: int, polygon_connections: List[List[i
 
     return tours
 
+
 def walk_through_tours(tours: list[list[int]], distances: list[list[int]]):
     total_distance = 0
 
@@ -192,4 +193,3 @@ def walk_through_tours(tours: list[list[int]], distances: list[list[int]]):
             total_distance += distances[origin][destination]
     
     return total_distance
-
