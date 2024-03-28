@@ -1,11 +1,10 @@
-from functions import *
+from heuristic import *
+from draw import *
 
-n_cities = 101
-m_salesman = 20
+n_cities = 16
+m_salesman = 3
 cities, distances = create_random_problem(n_cities)
-#print(cities)
-#for l in distances:
-#    print(l)
+
 
 centroid = find_centroid_city(n_cities, distances, cities)
 draw_cities(cities, centroid)
