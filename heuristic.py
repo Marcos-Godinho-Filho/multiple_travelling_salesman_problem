@@ -64,12 +64,17 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
     
     # Starting from the nearest to centroid
     fully_connected_cities = []
+    last_two_cities = []
+    
     for city in cities_clone:
         # counts connections to this city, in order not to create more than 3 connections
         number_of_connections = count_connections_to_city(city.id, n_cities, polygon_connections)
 
-        if number_of_connections == 3 and city not in fully_connected_cities:
-            fully_connected_cities.append(city)
+        if number_of_connections == 3:
+            if city not in fully_connected_cities:
+                fully_connected_cities.append(city)
+            if city in last_two_cities:
+                last_two_cities.remove(city.id)
 
         # 3 connections = 2 between cities and 1 to centroid
         elif number_of_connections < 3:
@@ -79,6 +84,8 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
             nearest_cities.sort(key = lambda other_city: distances[other_city.id][city.id])
             # removes city not to create a connection to itself
             nearest_cities.remove(city)
+        
+            could_connect = False
         
             for nearest_city in nearest_cities:
                 # This for loop will iterate through the cities near to city. It's important because being the
@@ -144,9 +151,15 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
                     
                     if number_of_connections == 3:
                         fully_connected_cities.append(city)
+                        could_connect = True
                         break
+                    
+            if not could_connect:
+                last_two_cities.append(city.id)
 
-    print(len(fully_connected_cities))
+    if (len(last_two_cities) == 2):
+        polygon_connections[last_two_cities[0]][last_two_cities[1]] = 1
+        polygon_connections[last_two_cities[1]][last_two_cities[0]] = 1
 
     return polygon_connections
 
