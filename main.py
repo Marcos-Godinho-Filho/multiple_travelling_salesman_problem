@@ -11,10 +11,10 @@ for _ in range(10):
   # draw_cities(cities, centroid)
 
   polygon = create_polygon(n_cities, distances, cities, centroid)
-  # draw_polygon(centroid, n_cities, cities, polygon)
 
   tours = split_path_between_salesmen(n_cities, m_salesman, polygon, distances, centroid)
   draw_solution(tours, cities)
+  draw_polygon(centroid, n_cities, cities, polygon)
 
   distance = walk_through_tours(tours, distances)
   print(distance)

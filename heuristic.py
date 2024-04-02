@@ -25,7 +25,7 @@ def create_random_problem (n_cities: int):
     # create n cities and their coordinates
     cities: list[City] = []
     for i in range(n_cities):
-        x, y = int(random.uniform(0, 1000)), int(random.uniform(0, 1000))
+        x, y = int(random.uniform(0, 100)), int(random.uniform(0, 100))
         city = City(i, x, y)
         cities.append(city)
 
@@ -63,18 +63,16 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
     cities_clone.remove(centroid)
     
     # Starting from the nearest to centroid
-    fully_connected_cities = []
-    last_two_cities = []
+    not_fully_connected_cities = cities.copy()
+    not_fully_connected_cities.remove(centroid)
     
     for city in cities_clone:
         # counts connections to this city, in order not to create more than 3 connections
         number_of_connections = count_connections_to_city(city.id, n_cities, polygon_connections)
 
         if number_of_connections == 3:
-            if city not in fully_connected_cities:
-                fully_connected_cities.append(city)
-            if city in last_two_cities:
-                last_two_cities.remove(city.id)
+            if city in not_fully_connected_cities:
+                not_fully_connected_cities.remove(city)
 
         # 3 connections = 2 between cities and 1 to centroid
         elif number_of_connections < 3:
@@ -85,81 +83,74 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
             # removes city not to create a connection to itself
             nearest_cities.remove(city)
         
-            could_connect = False
-        
             for nearest_city in nearest_cities:
                 # This for loop will iterate through the cities near to city. It's important because being the
                 # nearest city does not mean the connection will be created, since that may be a intersection.
 
                 # counts connections to nearest city, in order not to create more than 3 connections
-                if not nearest_city in fully_connected_cities: 
-                    if len(fully_connected_cities) == n_cities - 3:
-                        polygon_connections[city.id][nearest_city.id] = 1
-                        polygon_connections[nearest_city.id][city.id] = 1
-                        number_of_connections += 1
+                if nearest_city in not_fully_connected_cities: 
+                    # Here we have 2 of the 4 points needed to check an intersection:
+                    # 1 - The nearest city (C) to centroid
+                    # 2 - The nearest city (c) to C
+                    # Obs: nearest city must not be fully connnected yet, otherwise cycles would be created
+                    remaining_cities = nearest_cities.copy()
+                    # remove nearest city in order to, when iterating through the remaining cities, this one not be
+                    # considered, since it would be check the insersection: Cc - ccentroid, which is nearest city itself (an angle is formed)
+                    remaining_cities.remove(nearest_city)
+
+                    # Check whether there is a intersection between: C - c and any remainin_city - centroid
+                    for remaining_city in remaining_cities:
+                        # This for loop will iterate through the remaining cities (that not the centroid, city C and city c)
+                        # Here we have the remaing 2 points needed to check an intersection:
+                        # 3 - Any other city
+                        # 4 - The centroid
+                        has_intersection = intersect(city, nearest_city, remaining_city, centroid)
+                        # if there is any intersection, stop and check the next nearest city
+                        if has_intersection:
+                            break
                     else:
-                        # Here we have 2 of the 4 points needed to check an intersection:
-                        # 1 - The nearest city (C) to centroid
-                        # 2 - The nearest city (c) to C
-                        # Obs: nearest city must not be fully connnected yet, otherwise cycles would be created
-                        remaining_cities = nearest_cities.copy()
-                        # remove nearest city in order to, when iterating through the remaining cities, this one not be
-                        # considered, since it would be check the insersection: Cc - ccentroid, which is nearest city itself (an angle is formed)
-                        remaining_cities.remove(nearest_city)
+                        # if a cycle is found between far_city and nearest_city, that means they cannot be connected
 
-                        # Check whether there is a intersection between: C - c and any remainin_city - centroid
-                        for remaining_city in remaining_cities:
-                            # This for loop will iterate through the remaining cities (that not the centroid, city C and city c)
-                            # Here we have the remaing 2 points needed to check an intersection:
-                            # 3 - Any other city
-                            # 4 - The centroid
-                            has_intersection = intersect(city, nearest_city, remaining_city, centroid)
-                            # if there is any intersection, stop and check the next nearest city
-                            if has_intersection:
-                                break
-                        else:
-                            # if a cycle is found between far_city and nearest_city, that means they cannot be connected
+                        # if going back to the previous city (that not the centroid), and any time arrives at nearest city, 
+                        # that means a cycle would be created
+                        is_cycle = is_end = False
+                        current = city.id
+                        already_visited = [current]
+                        # while doesn't reach the end of cities or untill doesn't find a cycle
+                        while not is_end and not is_cycle:
+                            con = polygon_connections[current]
+                            for i in range(n_cities):
+                                if con[i] == 1 and i != centroid_index and i not in already_visited:
+                                    # goes to the first connection it finds
+                                    current = i
+                                    already_visited.append(current)
+                                    break
+                                # reached the end of cities
+                                elif i == n_cities - 1:
+                                    is_end = True
+                                    break
+                            # the second condition checks if we are not in that last - first city case
+                            if current == nearest_city.id and len(already_visited) != n_cities - 1:
+                                # if we're not in the end, but somehow got to the nearest city starting from city,
+                                # that means that, if the connection was made, it would have a cycle
+                                is_cycle = True
+                
+                        if not is_cycle:
+                            polygon_connections[city.id][nearest_city.id] = 1
+                            polygon_connections[nearest_city.id][city.id] = 1
+                            number_of_connections += 1
 
-                            # if going back to the previous city (that not the centroid), and any time arrives at nearest city, 
-                            # that means a cycle would be created
-                            is_cycle = is_end = False
-                            current = city.id
-                            already_visited = [current]
-                            # while doesn't reach the end of cities or untill doesn't find a cycle
-                            while not is_end and not is_cycle:
-                                con = polygon_connections[current]
-                                for i in range(n_cities):
-                                    if con[i] == 1 and i != centroid_index and i not in already_visited:
-                                        # goes to the first connection it finds
-                                        current = i
-                                        already_visited.append(current)
-                                        break
-                                    # reached the end of cities
-                                    elif i == n_cities - 1:
-                                        is_end = True
-                                        break
-                                # the second condition checks if we are not in that last - first city case
-                                if current == nearest_city.id and len(already_visited) != n_cities - 1:
-                                    # if we're not in the end, but somehow got to the nearest city starting from city,
-                                    # that means that, if the connection was made, it would have a cycle
-                                    is_cycle = True
-                    
-                            if not is_cycle:
-                                polygon_connections[city.id][nearest_city.id] = 1
-                                polygon_connections[nearest_city.id][city.id] = 1
-                                number_of_connections += 1
-                    
-                    if number_of_connections == 3:
-                        fully_connected_cities.append(city)
-                        could_connect = True
-                        break
-                    
-            if not could_connect:
-                last_two_cities.append(city.id)
+                            if count_connections_to_city(nearest_city.id, n_cities, polygon_connections) == 3:
+                                not_fully_connected_cities.remove(nearest_city)
+                
+                if number_of_connections == 3:
+                    not_fully_connected_cities.remove(city)
+                    break
 
-    if (len(last_two_cities) == 2):
-        polygon_connections[last_two_cities[0]][last_two_cities[1]] = 1
-        polygon_connections[last_two_cities[1]][last_two_cities[0]] = 1
+    print(not_fully_connected_cities)
+    for i in range(0, len(not_fully_connected_cities), 2):
+        polygon_connections[not_fully_connected_cities[i].id][not_fully_connected_cities[i+1].id] = 1
+        polygon_connections[not_fully_connected_cities[i+1].id][not_fully_connected_cities[i].id] = 1
 
     return polygon_connections
 
@@ -220,7 +211,7 @@ def split_path_between_salesmen(N: int, M: int, polygon_connections: List[List[i
     return tours
 
 
-def walk_through_tours(tours: list[list[int]], distances: list[list[int]]):
+def walk_through_tours(tours: List[List[int]], distances: List[List[int]]):
     total_distance = 0
 
     for tour in tours:
