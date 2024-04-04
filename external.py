@@ -1,12 +1,10 @@
 '''
 Lines 12 to 19: 
 Copied from: https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
-
-Lines 22 - 38:
-Modification from: https://chat.openai.com/share/d707df2b-a620-421a-be0f-b768b2931dc1
 '''
 from typing import List
 from entities.city import City
+import re
 
 
 # Determines if three points are listed in a counterclockwise order
@@ -19,20 +17,7 @@ def intersect(A, B, C, D):
     return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
 
 
-def has_cycle(n_cities: int, cities: List[City], polygon_connections: List[List[int]], start_city: City, end_city: City):
-    visited = [False] * n_cities
-    stack = [start_city]
-
-    while stack:
-        current = stack.pop()
-
-        if visited[start_city.id]:
-            return True
-        
-        visited[start_city.id] = True
-
-        for neighbor in cities:
-            if polygon_connections[current.id][neighbor.id] == 1:
-                stack.append(neighbor)
-    
-    return False
+def get_numeric(list):
+    primitive = [value.strip() for value in list if re.match(r'^\d+$', value.strip())]
+    numerical = [int(value) for value in primitive]
+    return numerical

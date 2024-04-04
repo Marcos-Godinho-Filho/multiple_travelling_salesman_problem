@@ -2,7 +2,6 @@ from typing import List
 from entities.city import City
 from external import *
 from math import sqrt
-import random
 
 
 def distance_between_cities (first: City, second: City):
@@ -19,23 +18,6 @@ def count_connections_to_city (city_id: int, n_cities: int, polygon_connections:
             n_connections += 1
 
     return n_connections
-
-
-def create_random_problem (n_cities: int):
-    # create n cities and their coordinates
-    cities: list[City] = []
-    for i in range(n_cities):
-        x, y = int(random.uniform(0, 100)), int(random.uniform(0, 100))
-        city = City(i, x, y)
-        cities.append(city)
-
-    # create distances array based on those coordinates
-    distances = [[0 for _ in range(n_cities)] for __ in range(n_cities)]
-    for i in range(n_cities):
-        for j in range(i+1, n_cities):
-            distances[i][j] = distances[j][i] = distance_between_cities(cities[j], cities[i])
-
-    return cities, distances
 
 
 def find_centroid_city (distances: list, cities: list):
