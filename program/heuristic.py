@@ -5,7 +5,7 @@ from math import sqrt
 
 
 def distance_between_cities (first: City, second: City):
-    return sqrt((second.x - first.x) ** 2 + (second.y - first.y) ** 2)
+    return int(sqrt((second.x - first.x) ** 2 + (second.y - first.y) ** 2))
 
 
 def count_connections_to_city (city_id: int, n_cities: int, polygon_connections: List[List[int]]):
@@ -35,8 +35,7 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
     for i in range(n_cities):
         city = cities[i]
         if city != centroid:
-            polygon_connections[i][centroid_index] = 1
-            polygon_connections[centroid_index][i] = 1
+            polygon_connections[i][centroid_index] = polygon_connections[centroid_index][i] = 1
     
     
     # sort cities from the nearest to the farthest city from centroid
@@ -129,7 +128,6 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
                     not_fully_connected_cities.remove(city)
                     break
 
-    print(not_fully_connected_cities)
     for i in range(0, len(not_fully_connected_cities), 2):
         polygon_connections[not_fully_connected_cities[i].id][not_fully_connected_cities[i+1].id] = 1
         polygon_connections[not_fully_connected_cities[i+1].id][not_fully_connected_cities[i].id] = 1
@@ -143,7 +141,7 @@ def split_path_between_salesmen(N: int, M: int, polygon_connections: List[List[i
     # aproximate number of cities to be visited by each salesman
     # N - 1 because we disconsider the centroid
     cities_per_salesman = int((N-1)/M)
-    # rest will be helpful for handling the last salesman
+
     rest = (N - 1) % M
 
     already_visited = list()
@@ -158,37 +156,29 @@ def split_path_between_salesmen(N: int, M: int, polygon_connections: List[List[i
 
     # inits by travelling from centroid to nearest city to centroid 
     already_visited.append(current)
+    already_visited.append(centroid.id)
 
     # N/M might not be exact and some cities might be missing because of the division. Therefore, the last salesman, will travel
     # cities_per_salesman cities AND those remaining. E.g: 16 / 3 = 5 and rest 1. The last salesman will travel 5 + 1 = 6 cities.
     # Because of this, he'll be handled separately
     for salesman in range(M):
         # i = salesman index
-        for j in range(cities_per_salesman):
+        for j in range(cities_per_salesman + (1 if rest > 0 else 0)):
             # j = Nth city the saleman must visit
             con = polygon_connections[current]
             for k in range(N):
                 # k = iterate through connected cities to jth city
-                if con[k] == 1 and k not in already_visited and k != centroid.id:
+                if con[k] == 1 and k not in already_visited:
                     current = k
                     break
             # The Ith tour will receive the city we are now, and it'll be considered visited
             tours[salesman].append(current)
             already_visited.append(current)
-        
-        if salesman == M - 1:
-            # last salesman travels the number of cities he was supposed to visit + remaining cities
-            for i in range(rest):
-                con = polygon_connections[current]
-                for j in range(N):
-                    if con[j] == 1 and j not in already_visited and j != centroid.id:
-                        current = j
-                        break
-                tours[salesman].append(current)
-                already_visited.append(current)
 
         # by the end of the tour, when the salesman finishes travelling through the cities he is supposed to, he must go back to centroid    
         tours[salesman].append(centroid.id)
+        
+        rest -= 1
 
     return tours
 

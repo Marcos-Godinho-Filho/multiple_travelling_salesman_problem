@@ -8,7 +8,7 @@ def draw_cities (cities: list, centroid: City):
 
     for i, city in enumerate(cities):
         plt.scatter(city.x, city.y, color='red')
-        plt.text(city.x, city.y, f'{i+1}')
+        plt.text(city.x, city.y, f'{i}')
     
     plt.scatter(centroid.x, centroid.y, color='blue')
 
@@ -21,7 +21,7 @@ def draw_polygon (centroid: City, n_cities: int, cities: List[City], polygon: Li
     plt.scatter(centroid.x, centroid.y, color='blue')
 
     for i in range(n_cities):
-        plt.text(cities[i].x, cities[i].y, f'{i+1}')
+        plt.text(cities[i].x, cities[i].y, f'{i}')
         for j in range(n_cities):
             if polygon[i][j] == 1:
                 origin = cities[i]
@@ -43,11 +43,15 @@ def draw_solution(tours: List[List[int]], cities: List[City]):
         for i in range(len(tour) - 1):
             origin = tour[i]
             destination = tour[i+1]
+            
             plt.plot([cities[origin].x, cities[destination].x], [cities[origin].y, cities[destination].y], color=colors[color], marker = 'o')
 
         color += 1
         if color == 7:
             color = 0
+            
+    for ix, city in enumerate(cities):
+        plt.text(city.x, city.y, f'{ix}')
 
     plt.show()
     

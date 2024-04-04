@@ -44,10 +44,9 @@ for filepath in os.listdir(instances_directory):
       polygon = create_polygon(n, distances, cities, centroid)
 
       tours = split_path_between_salesmen(n, m, polygon, distances, centroid)
-      draw_solution(tours, cities)
       # draw_polygon(centroid, n, cities, polygon)
 
       distance = walk_through_tours(tours, distances)
-      print(distance)
-
-      input("Pressione [Enter] para avançar para o próximo caso: ")
+      print(f'Distância total percorrida: {distance}')
+      
+      draw_solution(tours, cities)
