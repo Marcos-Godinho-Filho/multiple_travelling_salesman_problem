@@ -21,7 +21,18 @@ The Multiple Traveling Salesman Problem (mTSP) is a generalization of the Travel
 
 
 #### Results:
-- Accuracy: %% (tests table here)
+| Instância         | N | M | K | Solução (em tese) ótima | Solução encontrada |
+| :---------------: | - | - | - | :---------------------: | :----------------: |
+| 1 | 13 | 1 | 13 | 3071 | 3013 |
+| 2 | 17 | 1 | 17 | 3948 | 4146 |
+| 3 | 19 | 1 | 19 | 4218 | 4686 |
+| 4 | 32 | 3 | 11 | 5841 | 8378 |
+| 5 | 48 | 3 | 16 | 6477 | 9931 |
+| 6 | 60 | 3 | 20 | 6786 | 11769 |
+| 7 | 72 | 5 | 15 | 8618 | 12447 |
+| 8 | 86 | 5 | 17 | 9565 | 15770 |
+| 9 | 92 | 5 | 19 | 9586 | 16432 |
+
 
 #### How to run:
 - Create virtual environment:

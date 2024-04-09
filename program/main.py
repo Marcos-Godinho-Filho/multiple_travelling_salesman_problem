@@ -15,14 +15,13 @@ for filepath in os.listdir(instances_directory):
       print("-" * 100)
       print(f"Lendo arquivo: {filename}")
 
+      # get last "/" section: file name, i.e "mTSP-n12-m1"
       primitive = filename.split("/")[-1]
-      n_primitive, m_primitive = primitive.split("-")[1], primitive.split("-")[2]
-      n = int(n_primitive[1:]) + 1
+      n_primitive, m_primitive = primitive.split("-")[1], primitive.split("-")[2] # i.e, n12 and m1
+      n = int(n_primitive[1:]) + 1 # n12 has 13 cities. 12 is the last city's index
       m = int(m_primitive[1:])
       print(f"N Cities: {n}")
-      print(f"M Salesman: {m}")
-
-      print("-" * 100)
+      print(f"M Salesman: {m}")  
 
       cities: list[City] = []
       distances = [[0 for _ in range(n)] for __ in range(n)]

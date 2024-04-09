@@ -1,9 +1,11 @@
 '''
 Lines 12 to 19: 
 Copied from: https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
+
+Lines 21-24:
+Copied and modified from: https://chat.openai.com/share/2b7858a6-1524-4892-aadf-7ae3e650aa60
 '''
 from typing import List
-from entities.city import City
 import re
 
 
@@ -17,6 +19,7 @@ def intersect(A, B, C, D):
     return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
 
 
+# Read numberic values from instances files
 def get_numeric(list):
     primitive = [value.strip() for value in list if re.match(r'^\d+$', value.strip())]
     numerical = [int(value) for value in primitive]
