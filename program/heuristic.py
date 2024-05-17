@@ -4,7 +4,6 @@ Copied from: https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-
 '''
 from typing import List
 from entities.city import City
-from external import *
 from math import sqrt
 
 
