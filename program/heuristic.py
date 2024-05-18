@@ -1,10 +1,9 @@
 '''
-Lines 11 to 18: 
+Lines 11 to 18:
 Copied from: https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
 '''
 from typing import List
 from entities.city import City
-from math import sqrt
 
 
 # Determines if three points are listed in a counterclockwise order
@@ -15,10 +14,6 @@ def ccw(A, B, C):
 # Return true if line segments AB and CD intersect
 def intersect(A, B, C, D):
     return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
-
-
-def distance_between_cities (first: City, second: City):
-    return int(sqrt((second.x - first.x) ** 2 + (second.y - first.y) ** 2))
 
 
 def count_connections_to_city (city_id: int, n_cities: int, polygon_connections: List[List[int]]):
@@ -42,24 +37,24 @@ def find_centroid_city (distances: list, cities: list):
 def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City], centroid: City) -> List[List[int]]:
     # represents the connection between cities
     polygon_connections = [[0 for _ in range(0, n_cities)] for _ in range(0, n_cities)]
-    
+
     # connects every city to centroid
     centroid_index = cities.index(centroid)
     for i in range(n_cities):
         city = cities[i]
         if city != centroid:
             polygon_connections[i][centroid_index] = polygon_connections[centroid_index][i] = 1
-    
-    
+
+
     # sort cities from the nearest to the farthest city from centroid
     cities_clone = cities.copy()
     cities_clone.sort(key = lambda city: distances[centroid_index][city.id])
     cities_clone.remove(centroid)
-    
+
     # Starting from the nearest to centroid
     not_fully_connected_cities = cities.copy()
     not_fully_connected_cities.remove(centroid)
-    
+
     for city in cities_clone:
         # counts connections to this city, in order not to create more than 3 connections
         number_of_connections = count_connections_to_city(city.id, n_cities, polygon_connections)
@@ -76,13 +71,13 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
             nearest_cities.sort(key = lambda other_city: distances[other_city.id][city.id])
             # removes city not to create a connection to itself
             nearest_cities.remove(city)
-        
+
             for nearest_city in nearest_cities:
                 # This for loop will iterate through the cities near to city. It's important because being the
                 # nearest city does not mean the connection will be created, since that may be a intersection.
 
                 # counts connections to nearest city, in order not to create more than 3 connections
-                if nearest_city in not_fully_connected_cities: 
+                if nearest_city in not_fully_connected_cities:
                     # Here we have 2 of the 4 points needed to check an intersection:
                     # 1 - The nearest city (C) to centroid
                     # 2 - The nearest city (c) to C
@@ -105,7 +100,7 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
                     else:
                         # if a cycle is found between far_city and nearest_city, that means they cannot be connected
 
-                        # if going back to the previous city (that not the centroid), and any time arrives at nearest city, 
+                        # if going back to the previous city (that not the centroid), and any time arrives at nearest city,
                         # that means a cycle would be created
                         is_cycle = is_end = False
                         current = city.id
@@ -128,7 +123,7 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
                                 # if we're not in the end, but somehow got to the nearest city starting from city,
                                 # that means that, if the connection was made, it would have a cycle
                                 is_cycle = True
-                
+
                         if not is_cycle:
                             polygon_connections[city.id][nearest_city.id] = 1
                             polygon_connections[nearest_city.id][city.id] = 1
@@ -136,7 +131,7 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
 
                             if count_connections_to_city(nearest_city.id, n_cities, polygon_connections) == 3:
                                 not_fully_connected_cities.remove(nearest_city)
-                
+
                 if number_of_connections == 3:
                     not_fully_connected_cities.remove(city)
                     break
@@ -150,7 +145,7 @@ def create_polygon (n_cities: int, distances: List[List[int]], cities: List[City
 
 def split_path_between_salesmen(N: int, M: int, polygon_connections: List[List[int]], distances: List[List[int]], centroid: City):
     tours: List[List[int]] = list()
-    
+
     # aproximate number of cities to be visited by each salesman
     # N - 1 because we disconsider the centroid
     cities_per_salesman = int((N-1)/M)
@@ -167,7 +162,7 @@ def split_path_between_salesmen(N: int, M: int, polygon_connections: List[List[i
         # each salesman will always start from centroid
         tours.append([centroid.id])
 
-    # inits by travelling from centroid to nearest city to centroid 
+    # inits by travelling from centroid to nearest city to centroid
     already_visited.append(current)
     already_visited.append(centroid.id)
 
@@ -188,21 +183,18 @@ def split_path_between_salesmen(N: int, M: int, polygon_connections: List[List[i
             tours[salesman].append(current)
             already_visited.append(current)
 
-        # by the end of the tour, when the salesman finishes travelling through the cities he is supposed to, he must go back to centroid    
+        # by the end of the tour, when the salesman finishes travelling through the cities he is supposed to, he must go back to centroid
         tours[salesman].append(centroid.id)
-        
+
         rest -= 1
 
     return tours
 
+def main(distances, cities, n, m):
+    centroid = find_centroid_city(distances, cities)
 
-def walk_through_tours(tours: List[List[int]], distances: List[List[int]]):
-    total_distance = 0
+    polygon = create_polygon(n, distances, cities, centroid)
 
-    for tour in tours:
-        for i in range(len(tour) - 1):
-            origin = tour[i]
-            destination = tour[i+1]
-            total_distance += distances[origin][destination]
-    
-    return total_distance
+    tours = split_path_between_salesmen(n, m, polygon, distances, centroid)
+
+    return tours
