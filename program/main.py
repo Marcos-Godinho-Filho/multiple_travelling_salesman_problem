@@ -8,7 +8,7 @@ Copied from: https://stackoverflow.com/questions/110362/how-can-i-find-the-curre
 from entities.city import City
 from draw import *
 from heuristic import *
-from meta_heuristics import annealing
+from metaheuristic import annealing
 from colorama import Fore, Style
 import os
 import platform
