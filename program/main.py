@@ -8,6 +8,8 @@ Copied from: https://stackoverflow.com/questions/110362/how-can-i-find-the-curre
 from entities.city import City
 from draw import *
 from heuristic import *
+from meta_heuristics import annealing
+from colorama import Fore, Style
 import os
 import platform
 import re
@@ -63,9 +65,18 @@ for filepath in os.listdir(instances_directory):
         polygon = create_polygon(n, distances, cities, centroid)
 
         tours = split_path_between_salesmen(n, m, polygon, distances, centroid)
+        # print(tours)
         # draw_polygon(centroid, n, cities, polygon)
 
-        distance = walk_through_tours(tours, distances)
-        print(f'Distância total percorrida: {distance}')
+        heuristic_distance = walk_through_tours(tours, distances)
+        print(Fore.LIGHTGREEN_EX + f'[Heurística]: Distância total percorrida: {heuristic_distance}')
 
-        draw_solution(tours, cities)
+        # Simullated Annealing
+        simullated_annealing_solution = annealing.annealing(0.95, 10000, 500, tours, n, distances)
+        annealing_distance = walk_through_tours(tours, distances)
+        # print(simullated_annealing_solution)
+        print(Fore.LIGHTCYAN_EX + f'[Simullated Annealing]: Melhor distância total achada: {annealing_distance}')
+
+        # draw_solution(tours, cities)
+        input(Fore.LIGHTBLACK_EX + 'Pressione [ENTER] para ir para próxima instância: ')
+        print(Fore.RESET)
