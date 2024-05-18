@@ -7,9 +7,10 @@ Copied from: https://stackoverflow.com/questions/110362/how-can-i-find-the-curre
 '''
 from entities.city import City
 from draw import *
-from heuristic import *
+from utils import *
 from metaheuristic import annealing, genetic_algorithm
-from colorama import Fore, Style
+from colorama import Fore
+import heuristic
 import os
 import platform
 import re
@@ -60,29 +61,22 @@ for filepath in os.listdir(instances_directory):
             for j in range(i+1, n):
                 distances[i][j] = distances[j][i] = distance_between_cities(cities[j], cities[i])
 
-        centroid = find_centroid_city(distances, cities)
-
-        polygon = create_polygon(n, distances, cities, centroid)
-
-        tours = split_path_between_salesmen(n, m, polygon, distances, centroid)
-        # print(tours)
-        # draw_polygon(centroid, n, cities, polygon)
-
-        heuristic_distance = walk_through_tours(tours, distances)
+        heuristic_solution = heuristic.main(distances, cities, n, m)
+        heuristic_distance = total_distance_individual(heuristic_solution, distances)
+        # print(heuristic_solution)
         print(Fore.LIGHTGREEN_EX + f'[Heurística]: Distância total percorrida: {heuristic_distance}')
 
-        # Simullated Annealing
-        simullated_annealing_solution = annealing.annealing(0.95, 10000, 500, tours, n, distances)
-        annealing_distance = walk_through_tours(tours, distances)
-        # print(simullated_annealing_solution)
-        print(Fore.LIGHTCYAN_EX + f'[Simullated Annealing]: Melhor distância total achada: {annealing_distance}')
+        # Simulated Annealing
+        simulated_annealing_solution = annealing.main(0.95, 10000, 500, heuristic_solution, n, distances)
+        annealing_distance = total_distance_individual(simulated_annealing_solution, distances)
+        # print(simulated_annealing_solution)
+        print(Fore.LIGHTCYAN_EX + f'[Simulated Annealing]: Melhor distância total achada: {annealing_distance}')
 
         # Genetic algorithm
-        genetic_solution = genetic_algorithm.main(500, 0.1, 3057, range(n), tours, distances)
-        genetic_distance = walk_through_tours(tours, distances)
-        # print(simullated_annealing_solution)
+        genetic_solution = genetic_algorithm.main(500, 0.1, range(n), heuristic_solution, 10000)
+        genetic_distance = total_distance_individual(genetic_solution, distances)
+        # print(genetic_solution)
         print(Fore.LIGHTMAGENTA_EX + f'[Genetic Algorithm]: Melhor distância total achada: {genetic_distance}')
 
-        # draw_solution(tours, cities)
         input(Fore.LIGHTBLACK_EX + 'Pressione [ENTER] para ir para próxima instância: ')
         print(Fore.RESET)
