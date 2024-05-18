@@ -1,66 +1,90 @@
-# https://www.tandfonline.com/doi/full/10.1080/21642583.2019.1674220
-# https://medium.com/aimonks/traveling-salesman-problem-tsp-using-genetic-algorithm-fea640713758
-# https://towardsdatascience.com/introduction-to-optimization-with-genetic-algorithm-2f5001d9964b
-# https://towardsdatascience.com/genetic-algorithm-implementation-in-python-5ab67bb124a6
 '''
 Theorical Reference:
     * https://medium.com/@Data_Aficionado_1083/genetic-algorithms-optimizing-success-through-evolutionary-computing-f4e7d452084f
+    * https://towardsdatascience.com/introduction-to-optimization-with-genetic-algorithm-2f5001d9964b
 
 Code Reference:
     * https://github.com/Rayan-Ali1083/Genetic-Algorithm
+    * https://medium.com/aimonks/traveling-salesman-problem-tsp-using-genetic-algorithm-fea640713758
 '''
-from heuristic import walk_through_tours
+from utils import total_distance_individual
 import random
 import copy
 
-POPULATION_SIZE = 500
-MUTATION_RATE = 0.1
 
-
-# Initilize population
-def initialize_population(genes, heuristic_solution):
+def initialize_population(genes, heuristic_solution, population_size):
     population = list()
 
-    for i in range(POPULATION_SIZE):
+    for i in range(population_size):
         model = copy.deepcopy(heuristic_solution)
 
-        chromossome = list()
-        for salesman in model:
-            for gene in range(1, len(salesman) - 1):
-                salesman[gene] = random.choice(genes)
-            chromossome.append(salesman)
+        individual = list()
+        new_genes = copy.deepcopy(genes)
+        random.shuffle(new_genes)
 
-        population.append(chromossome)
+        idx = 0
+        for idx1, salesman in model:
+            individual.append([])
+            for _ in salesman:
+                individual[idx1].append(new_genes[idx])
+                idx += 1
+
+        population.append(individual)
 
     return population
 
 
-def calculate_fitness(target, chromossome_from_population, distances):
-    total_distance = walk_through_tours(chromossome_from_population, distances)
-    difference = total_distance - target
-    return [chromossome_from_population, difference]
+# attribute a score to each individual according to their fitness
+def calculate_fitness(population):
+
+    total_dist_all_individuals = []
+    for i in range (0, len(population)):
+        total_dist_all_individuals.append(total_distance_individual(population[i]))
+
+    # max_cost is the cost from the worst individual
+    max_population_cost = max(total_dist_all_individuals)
+
+    population_fitness = list()
+    for item in total_dist_all_individuals:
+        # the lower the distance, the higher the score
+        population_fitness.append(max_population_cost - item)
+
+    population_fitness_sum = sum(population_fitness)
+    population_fitness_score = [fitness / population_fitness_sum for fitness in population_fitness_score]
+
+    return population_fitness_score
 
 
-def select_from_population(population):
+def select_from_population(population, population_score):
     # Sort population according to fitness
-    sorted_population = sorted(population, key = lambda chromossome: chromossome[1])
+    sorted_population = sorted(enumerate(population), key = lambda idx, _: population_score[idx])
 
     # Return top 50% of population => Most adapted
-    return sorted_population[:int(0.5 * POPULATION_SIZE)]
+    return sorted_population[:int(0.5 * len(population))]
 
 
-def crossover(selected_population, chromossome_len, population):
+def crossover(selected_population, population, genes):
     offspring = list()
 
-    for i in range(POPULATION_SIZE):
+    for i in range(len(population)):
         # One parent from the top 50%
-        parent1 = random.choice(selected_population)[0] # [0] gets chromossome it self, without fitness
+        parent1 = random.choice(selected_population)
         # The other one is random, can be from bottom 50% for example
-        parent2 = random.choice(population[:int(POPULATION_SIZE * 50)])[0]
+        parent2 = random.choice(population)
 
         # Crossover point will also be random
-        crossover_point = random.randint(1, chromossome_len - 1)
-        child = parent1[:crossover_point] + parent2[crossover_point:]
+        crossover_point = random.randint(1, len(genes) - 1)
+
+        idx = 0
+        child = list()
+        for idx1, salesman in parent1:
+            child.append([])
+            for idx2, city in salesman:
+                if crossover_point < idx:
+                    child[idx1].append(city)
+                else:
+                    child[idx1].append(parent2[idx1][idx2])
+
         offspring.append(child)
 
     return offspring
@@ -69,59 +93,59 @@ def crossover(selected_population, chromossome_len, population):
 def mutate(offspring, mutation_rate, genes):
     mutated_offspring = list()
 
-    for chromossome in offspring:
-        for salesman in chromossome:
-            for gene in range(len(salesman)):
-                if random.random() < mutation_rate:
-                    salesman[gene] = random.choice(genes)
+    for individual in offspring:
+        # we perform mutations while the random() returns True
+        while random.random() < mutation_rate:
+            i, j = random.sample(range(genes), 2)
 
-        mutated_offspring.append(chromossome)
+            # we choose two random indexes
+            idx = 0
+            for idx1, salesman in individual:
+                for idx2, _ in salesman:
+                    if idx == i:
+                        i = [idx1, idx2]
+                    if idx == j:
+                        j = [idx1, idx2]
+                    idx += 1
+
+            # SWAP approach
+            individual[i[0]][i[1]], individual[j[0]][j[1]] = individual[j[0]][j[1]], individual[i[0]][i[1]]
+
+        mutated_offspring.append(individual)
 
     return mutated_offspring
 
 
-def replace(new_generation, population):
-    for i in range(len(population)):
-        # If current fitness is greater than new fitness, it is bad and we must replace it
-        if population[i][1] > new_generation[i][1]:
-            population[i][0] = new_generation[i][0]
-            population[i][1] = new_generation[i][1]
+def replace(population, population_score, new_generation, new_generation_score):
+
+    for p, n in zip(enumerate(population), enumerate(new_generation)):
+        # If new generation fitness score is greater than current population's one, we replace it
+        if population_score[p[0]] < new_generation_score[[n[0]]]:
+            population[p[0]] = new_generation[n[0]]
+
     return population
 
 
-def main(population_size, mutation_rate, target, genes, initial_solution, distances):
-    # 1) Initialize population
-    initial_population = initialize_population(genes, initial_solution)
-    population = list()
-    target_found = False
-    generation = 1
+def main(population_size, mutation_rate, genes, initial_solution, n_generations):
 
-    # 2) Order population according to fitness
-    for chromossome in initial_population:
-        population.append(calculate_fitness(target, chromossome, distances))
+    initial_population = initialize_population(genes, initial_solution, population_size)
 
-    # 3) Natural selection
-    while not target_found:
-        # 3.1) Select 50% best chromossomes from population
-        selected = select_from_population(population)
+    current_population = copy.deepcopy(initial_population)
+    population_score = calculate_fitness(current_population)
 
-        # 3.2) Perform crossover between selected population and the rest of it
-        population = sorted(population, key = lambda chromossome: chromossome[1])
-        crossovered = crossover(selected, target, population)
+    for i in n_generations:
+        # select 50% best individuals from population
+        selected = select_from_population(current_population, population_score)
 
-        # 3.3) Perform mutation
-        mutated = mutate(crossovered, mutation_rate, genes)
+        # perform crossover between selected population and the rest of it
+        crossovered = crossover(selected, current_population, genes)
 
-        new_generation = [calculate_fitness(target, chromossome, distances) for chromossome in mutated]
+        # perform mutation
+        new_generation = mutate(crossovered, mutation_rate, genes)
 
-        # 3.4) Natural selection itself
-        population = replace(new_generation, population)
+        new_generation_score = calculate_fitness(new_generation)
 
-        # If the best chromossome in population has a fitness of 0, it has found the target
-        if (population[0][1] == 0):
-            print('Target found')
-            print('String: ' + str(population[0][0]) + ' Generation: ' + str(generation) + ' Fitness: ' + str(population[0][1]))
-            target_found = True
+        # natural selection itself
+        population = replace(current_population, population_score, new_generation, new_generation_score)
 
-        print('String: ' + str(population[0][0]) + ' Generation: ' + str(generation) + ' Fitness: ' + str(population[0][1]))
-        generation += 1
+    return population
