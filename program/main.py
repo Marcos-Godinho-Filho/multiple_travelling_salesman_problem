@@ -8,7 +8,7 @@ Copied from: https://stackoverflow.com/questions/110362/how-can-i-find-the-curre
 from entities.city import City
 from draw import *
 from heuristic import *
-from metaheuristic import annealing
+from metaheuristic import annealing, genetic_algorithm
 from colorama import Fore, Style
 import os
 import platform
@@ -76,6 +76,12 @@ for filepath in os.listdir(instances_directory):
         annealing_distance = walk_through_tours(tours, distances)
         # print(simullated_annealing_solution)
         print(Fore.LIGHTCYAN_EX + f'[Simullated Annealing]: Melhor distância total achada: {annealing_distance}')
+
+        # Genetic algorithm
+        genetic_solution = genetic_algorithm.main(500, 0.1, 3057, range(n), tours, distances)
+        genetic_distance = walk_through_tours(tours, distances)
+        # print(simullated_annealing_solution)
+        print(Fore.LIGHTMAGENTA_EX + f'[Genetic Algorithm]: Melhor distância total achada: {genetic_distance}')
 
         # draw_solution(tours, cities)
         input(Fore.LIGHTBLACK_EX + 'Pressione [ENTER] para ir para próxima instância: ')
