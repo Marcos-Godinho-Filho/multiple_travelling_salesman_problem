@@ -12,8 +12,8 @@ def get_neighbors(current_solution, n_cities):
     i, j = random.sample(range(n_cities), 2)
 
     idx = 0
-    for idx1, salesman in neighbor_solution:
-        for idx2, _ in salesman:
+    for idx1, salesman in enumerate(neighbor_solution):
+        for idx2, _ in enumerate(salesman):
             if idx == i:
                 i = [idx1, idx2]
             if idx == j:
