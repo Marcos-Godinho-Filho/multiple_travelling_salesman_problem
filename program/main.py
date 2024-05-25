@@ -73,7 +73,7 @@ for filepath in os.listdir(instances_directory):
         print(Fore.LIGHTCYAN_EX + f'[Simulated Annealing]: Melhor distância total achada: {annealing_distance}')
 
         # Genetic algorithm
-        genetic_solution = genetic_algorithm.main(500, 0.1, range(n), heuristic_solution, 10000)
+        genetic_solution = genetic_algorithm.main(500, 0.1, list(range(n)), heuristic_solution, 10000)
         genetic_distance = total_distance_individual(genetic_solution, distances)
         # print(genetic_solution)
         print(Fore.LIGHTMAGENTA_EX + f'[Genetic Algorithm]: Melhor distância total achada: {genetic_distance}')

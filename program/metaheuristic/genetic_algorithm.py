@@ -12,24 +12,29 @@ import random
 import copy
 
 
-def initialize_population(genes, heuristic_solution, population_size):
+def initialize_population(genes: list, heuristic_solution, population_size):
     population = list()
 
     for i in range(population_size):
-        model = copy.deepcopy(heuristic_solution)
+        # is a copy if the heuristic solution so it does not have to calculate remaining
+        # cities. Furthermore, it's easier to create new population because it just have
+        # to change the genes in each salesman
+        tour_model = copy.deepcopy(heuristic_solution)
 
-        individual = list()
-        new_genes = copy.deepcopy(genes)
-        random.shuffle(new_genes)
+        tours = list()
 
-        idx = 0
-        for idx1, salesman in model:
-            individual.append([])
-            for _ in salesman:
-                individual[idx1].append(new_genes[idx])
-                idx += 1
+        for salesman in tour_model:
+            new_genes = copy.deepcopy(genes)
+            # must remove the city from where the salesman leaves/finishes the tour, since that city
+            # cannot be in the middle of the tour when creating a new individual, e.g [3,...3,...3]
+            new_genes.remove(salesman[0])
+            random.shuffle(new_genes)
+            for j in range(len(new_genes)):
+                salesman[j + 1] = new_genes[j]
 
-        population.append(individual)
+            tours.append(salesman)
+
+        population.append(tours)
 
     return population
 
@@ -129,6 +134,7 @@ def replace(population, population_score, new_generation, new_generation_score):
 def main(population_size, mutation_rate, genes, initial_solution, n_generations):
 
     initial_population = initialize_population(genes, initial_solution, population_size)
+
 
     current_population = copy.deepcopy(initial_population)
     population_score = calculate_fitness(current_population)
