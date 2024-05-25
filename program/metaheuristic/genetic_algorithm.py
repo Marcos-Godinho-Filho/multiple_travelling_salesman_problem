@@ -133,12 +133,13 @@ def mutate(offspring, mutation_rate, genes):
 
 
 def replace(population, population_score, new_generation, new_generation_score):
+    new_population = copy.deepcopy(population)
     for p, n in zip(enumerate(population), enumerate(new_generation)):
         # If new generation fitness score is greater than current population's one, we replace it
-        if population_score[p[0]] < new_generation_score[[n[0]]]:
-            population[p[0]] = new_generation[n[0]]
+        if population_score[p[0]] < new_generation_score[n[0]]:
+            new_population[p[0]] = new_generation[n[0]]
 
-    return population
+    return new_population
 
 
 def main(population_size, mutation_rate, genes, initial_solution, n_generations, distances):
@@ -149,6 +150,8 @@ def main(population_size, mutation_rate, genes, initial_solution, n_generations,
     population_score = calculate_fitness(current_population, distances)
 
     for i in range(n_generations):
+        if (i + 1) % 1000 == 0:
+            print(f"Generation: {i + 1}/{n_generations}")
         # select 50% best individuals from population
         selected = select_from_population(current_population, population_score)
 
@@ -161,6 +164,11 @@ def main(population_size, mutation_rate, genes, initial_solution, n_generations,
         new_generation_score = calculate_fitness(new_generation, distances)
 
         # natural selection itself
-        population = replace(current_population, population_score, new_generation, new_generation_score)
+        current_population = replace(current_population, population_score, new_generation, new_generation_score)
 
-    return population
+    # Select the best individual from the final population
+    population_score = calculate_fitness(current_population, distances)
+    final_elite = select_from_population(current_population, population_score)
+    best_tour = final_elite[0]
+
+    return best_tour
