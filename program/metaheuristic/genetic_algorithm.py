@@ -68,11 +68,15 @@ def calculate_fitness(population, distances):
 
 
 def select_from_population(population, population_score):
-    # Sort population according to fitness
-    sorted_population = sorted(enumerate(population), key = lambda idx, _: population_score[idx])
+    # Combine population + population_score in order to order it
+    combined = list(zip(population, population_score))
 
-    # Return top 50% of population => Most adapted
-    return sorted_population[:int(0.5 * len(population))]
+    # Sorts based on the score of each tour
+    combined_sorted = sorted(combined, key = lambda x: x[1])
+    # Return top 50% of population => Most adapted and have greater scores
+    elite = combined_sorted[:int(0.5 * len(population))]
+
+    return [tour for tour, score in elite]
 
 
 def crossover(selected_population, population, genes):
@@ -145,7 +149,7 @@ def main(population_size, mutation_rate, genes, initial_solution, n_generations,
     current_population = copy.deepcopy(initial_population)
     population_score = calculate_fitness(current_population, distances)
 
-    for i in n_generations:
+    for i in range(n_generations):
         # select 50% best individuals from population
         selected = select_from_population(current_population, population_score)
 
