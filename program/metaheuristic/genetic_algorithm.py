@@ -93,9 +93,9 @@ def crossover(selected_population, population, genes):
 
         idx = 0
         child = list()
-        for idx1, salesman in parent1:
+        for idx1, salesman in enumerate(parent1):
             child.append([])
-            for idx2, city in salesman:
+            for idx2, city in enumerate(salesman):
                 if crossover_point < idx:
                     child[idx1].append(city)
                 else:
@@ -112,12 +112,12 @@ def mutate(offspring, mutation_rate, genes):
     for individual in offspring:
         # we perform mutations while the random() returns True
         while random.random() < mutation_rate:
-            i, j = random.sample(range(genes), 2)
+            i, j = random.sample(genes, 2)
 
             # we choose two random indexes
             idx = 0
-            for idx1, salesman in individual:
-                for idx2, _ in salesman:
+            for idx1, salesman in enumerate(individual):
+                for idx2, _ in enumerate(salesman):
                     if idx == i:
                         i = [idx1, idx2]
                     if idx == j:
@@ -133,7 +133,6 @@ def mutate(offspring, mutation_rate, genes):
 
 
 def replace(population, population_score, new_generation, new_generation_score):
-
     for p, n in zip(enumerate(population), enumerate(new_generation)):
         # If new generation fitness score is greater than current population's one, we replace it
         if population_score[p[0]] < new_generation_score[[n[0]]]:
@@ -159,7 +158,7 @@ def main(population_size, mutation_rate, genes, initial_solution, n_generations,
         # perform mutation
         new_generation = mutate(crossovered, mutation_rate, genes)
 
-        new_generation_score = calculate_fitness(new_generation)
+        new_generation_score = calculate_fitness(new_generation, distances)
 
         # natural selection itself
         population = replace(current_population, population_score, new_generation, new_generation_score)
