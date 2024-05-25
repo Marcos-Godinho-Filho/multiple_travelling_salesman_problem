@@ -7,7 +7,7 @@ Code Reference:
     * https://github.com/Rayan-Ali1083/Genetic-Algorithm
     * https://medium.com/aimonks/traveling-salesman-problem-tsp-using-genetic-algorithm-fea640713758
 '''
-from utils import total_distance_individual
+from utils import calculate_tour_total_distance
 import random
 import copy
 
@@ -39,25 +39,32 @@ def initialize_population(genes: list, heuristic_solution, population_size):
     return population
 
 
-# attribute a score to each individual according to their fitness
-def calculate_fitness(population):
+def calculate_fitness(population, distances):
+    '''
+    Generates a [0, 1] score for each chromossome (tour) within a population.
+    This score is calculated using the maximum tour distance. That is:
+        tours_total_distances = [1000, 2500, 6000, 7000]
+    Will produce a:
+        score = [6000, 4500, 1000, 0]
+    And consequently:
+        fitness_score = [0,36; 0,27; 0,06; 0]
+    '''
+    tours_total_distances = []
+    for i in range(len(population)):
+        tours_total_distances.append(calculate_tour_total_distance(population[i], distances))
 
-    total_dist_all_individuals = []
-    for i in range (0, len(population)):
-        total_dist_all_individuals.append(total_distance_individual(population[i]))
+    # the tour that has the maximum total distance
+    max_tour_distance = max(tours_total_distances)
 
-    # max_cost is the cost from the worst individual
-    max_population_cost = max(total_dist_all_individuals)
+    scores = list()
+    for tour_distance in tours_total_distances:
+        # the lower the tour total distance, the higher score that tour has
+        scores.append(max_tour_distance - tour_distance)
 
-    population_fitness = list()
-    for item in total_dist_all_individuals:
-        # the lower the distance, the higher the score
-        population_fitness.append(max_population_cost - item)
+    total_score = sum(scores)
+    fitness_score = [score / total_score for score in scores]
 
-    population_fitness_sum = sum(population_fitness)
-    population_fitness_score = [fitness / population_fitness_sum for fitness in population_fitness_score]
-
-    return population_fitness_score
+    return fitness_score
 
 
 def select_from_population(population, population_score):
@@ -131,13 +138,13 @@ def replace(population, population_score, new_generation, new_generation_score):
     return population
 
 
-def main(population_size, mutation_rate, genes, initial_solution, n_generations):
+def main(population_size, mutation_rate, genes, initial_solution, n_generations, distances):
 
     initial_population = initialize_population(genes, initial_solution, population_size)
-
+    print(initial_population)
 
     current_population = copy.deepcopy(initial_population)
-    population_score = calculate_fitness(current_population)
+    population_score = calculate_fitness(current_population, distances)
 
     for i in n_generations:
         # select 50% best individuals from population

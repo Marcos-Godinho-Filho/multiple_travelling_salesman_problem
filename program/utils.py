@@ -2,7 +2,7 @@ from typing import List
 from entities.city import City
 from math import sqrt
 
-def total_distance_individual(tours: List[List[int]], distances: List[List[int]]):
+def calculate_tour_total_distance(tours: List[List[int]], distances: List[List[int]]):
     total_distance = 0
 
     for tour in tours:
