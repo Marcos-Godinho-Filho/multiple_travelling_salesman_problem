@@ -62,19 +62,19 @@ for filepath in os.listdir(instances_directory):
                 distances[i][j] = distances[j][i] = distance_between_cities(cities[j], cities[i])
 
         heuristic_solution = heuristic.main(distances, cities, n, m)
-        heuristic_distance = total_distance_individual(heuristic_solution, distances)
+        heuristic_distance = calculate_tour_total_distance(heuristic_solution, distances)
         # print(heuristic_solution)
         print(Fore.LIGHTGREEN_EX + f'[Heurística]: Distância total percorrida: {heuristic_distance}')
 
         # Simulated Annealing
         simulated_annealing_solution = annealing.main(0.95, 10000, 500, heuristic_solution, n, distances)
-        annealing_distance = total_distance_individual(simulated_annealing_solution, distances)
+        annealing_distance = calculate_tour_total_distance(simulated_annealing_solution, distances)
         # print(simulated_annealing_solution)
         print(Fore.LIGHTCYAN_EX + f'[Simulated Annealing]: Melhor distância total achada: {annealing_distance}')
 
         # Genetic algorithm
         genetic_solution = genetic_algorithm.main(500, 0.1, list(range(n)), heuristic_solution, 10000, distances)
-        genetic_distance = total_distance_individual(genetic_solution, distances)
+        genetic_distance = calculate_tour_total_distance(genetic_solution, distances)
         # print(genetic_solution)
         print(Fore.LIGHTMAGENTA_EX + f'[Genetic Algorithm]: Melhor distância total achada: {genetic_distance}')
 

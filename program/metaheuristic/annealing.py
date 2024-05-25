@@ -1,4 +1,4 @@
-from utils import total_distance_individual
+from utils import calculate_tour_total_distance
 import random
 import math
 import copy
@@ -47,8 +47,8 @@ def main(alpha, initial_temperature, maximum_iterations, initial_solution, n_cit
         # neighbor_solution = get_neighbors(current_solution)
 
         # calcular diferença entre o valor da função objetivo da solução vizinha escolhida e a solução atual
-        current_solution_total_distance = total_distance_individual(current_solution, distances)
-        neighbor_solution_total_distance = total_distance_individual(neighbor_solution, distances)
+        current_solution_total_distance = calculate_tour_total_distance(current_solution, distances)
+        neighbor_solution_total_distance = calculate_tour_total_distance(neighbor_solution, distances)
 
         delta = current_solution_total_distance - neighbor_solution_total_distance
 

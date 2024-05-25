@@ -141,7 +141,6 @@ def replace(population, population_score, new_generation, new_generation_score):
 def main(population_size, mutation_rate, genes, initial_solution, n_generations, distances):
 
     initial_population = initialize_population(genes, initial_solution, population_size)
-    print(initial_population)
 
     current_population = copy.deepcopy(initial_population)
     population_score = calculate_fitness(current_population, distances)
