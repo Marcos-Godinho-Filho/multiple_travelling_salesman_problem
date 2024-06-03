@@ -27,7 +27,7 @@ def get_neighbors(current_solution, n_cities):
 # alpha: constante de decaimento da temperatura no intervalo [0, 1]
 # initial_temperature: temperatura inicial > 0
 # maximum_iterations: número máximo de iterações do algoritmo
-def main(alpha, initial_temperature, maximum_iterations, initial_solution, n_cities, distances):
+def main(alpha, initial_temperature, min_temperature, initial_solution, n_cities, distances):
     # criar algo para controlar o decaimento da temperatura
     current_temperature = initial_temperature
 
@@ -39,7 +39,7 @@ def main(alpha, initial_temperature, maximum_iterations, initial_solution, n_cit
 
     # explorará o espaço de soluções por maximum_iterations
     # while current_temperature >= 0.0:
-    for k in range(maximum_iterations):
+    while current_temperature > min_temperature:
 
         neighbor_solution = get_neighbors(current_solution, n_cities)
 

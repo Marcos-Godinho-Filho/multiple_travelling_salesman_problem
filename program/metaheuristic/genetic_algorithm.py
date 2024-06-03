@@ -8,8 +8,11 @@ Code Reference:
     * https://medium.com/aimonks/traveling-salesman-problem-tsp-using-genetic-algorithm-fea640713758
 '''
 from utils import calculate_tour_total_distance
+from typing import List
 import random
 import copy
+from tqdm import tqdm
+from time import sleep
 
 
 def initialize_population(genes: list, heuristic_solution, population_size):
@@ -23,16 +26,20 @@ def initialize_population(genes: list, heuristic_solution, population_size):
 
         tours = list()
 
+        initial_city = tour_model[0][0]
+
         for salesman in tour_model:
             new_genes = copy.deepcopy(genes)
             # must remove the city from where the salesman leaves/finishes the tour, since that city
-            # cannot be in the middle of the tour when creating a new individual, e.g [3,...3,...3]
+            # cannot be in the middle of the tour when creating a new individual
             new_genes.remove(salesman[0])
-            random.shuffle(new_genes)
-            for j in range(len(new_genes)):
-                salesman[j + 1] = new_genes[j]
 
-            tours.append(salesman)
+            random.shuffle(new_genes)
+
+            new_genes.insert(0, initial_city)
+            new_genes.append(initial_city)
+
+            tours.append(new_genes)
 
         population.append(tours)
 
@@ -58,7 +65,7 @@ def calculate_fitness(population, distances):
 
     scores = list()
     for tour_distance in tours_total_distances:
-        # the lower the tour total distance, the higher score that tour has
+        # the lower the tour total distance, the higher the tour score
         scores.append(max_tour_distance - tour_distance)
 
     total_score = sum(scores)
@@ -89,18 +96,40 @@ def crossover(selected_population, population, genes):
         parent2 = random.choice(population)
 
         # Crossover point will also be random
-        crossover_point = random.randint(1, len(genes) - 1)
+        crossover_point_1, crossover_point_2 = random.sample(genes, 2)
 
         idx = 0
         child = list()
+
+        left: List = copy.deepcopy(genes)
+        last = []
+
         for idx1, salesman in enumerate(parent1):
             child.append([])
             for idx2, city in enumerate(salesman):
-                if crossover_point < idx:
-                    child[idx1].append(city)
-                else:
-                    child[idx1].append(parent2[idx1][idx2])
+                if idx >= crossover_point_1 and idx < crossover_point_2:
+                    city2 = parent2[idx1][idx2]
 
+                    if city2 not in child[idx1]:
+                        child[idx1].append(city2)
+                        left.remove(city2)
+                else:
+                    if idx >= crossover_point_2:
+                        last.append(city)
+                        if city in left:
+                            left.remove(city)
+                    else:
+                        child[idx1].append(city)
+
+                idx += 1
+
+            for i in left:
+                child[idx1].append(i)
+            for i in last:
+                child[idx1].append(i)
+
+        print(child)
+        sleep(100)
         offspring.append(child)
 
     return offspring
@@ -149,9 +178,8 @@ def main(population_size, mutation_rate, genes, initial_solution, n_generations,
     current_population = copy.deepcopy(initial_population)
     population_score = calculate_fitness(current_population, distances)
 
-    for i in range(n_generations):
-        if (i + 1) % 1000 == 0:
-            print(f"Generation: {i + 1}/{n_generations}")
+    for i in tqdm(range(n_generations)):
+
         # select 50% best individuals from population
         selected = select_from_population(current_population, population_score)
 

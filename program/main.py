@@ -6,6 +6,7 @@ Line 32:
 Copied from: https://stackoverflow.com/questions/110362/how-can-i-find-the-current-os-in-python
 '''
 from entities.city import City
+from typing import List
 from draw import *
 from utils import *
 from metaheuristic import annealing, genetic_algorithm
@@ -26,7 +27,10 @@ def get_numeric(list):
 script_directory = os.path.dirname(os.path.abspath(__file__))
 instances_directory = os.path.join(script_directory, '..', 'instances')
 
-for filepath in os.listdir(instances_directory):
+dir = os.listdir(instances_directory)
+dir.sort()
+
+for filepath in dir:
     filename = os.path.join(instances_directory, filepath)
 
     if os.path.isfile(filename):
@@ -46,7 +50,7 @@ for filepath in os.listdir(instances_directory):
         print(f"N Cities: {n}")
         print(f"M Salesman: {m}")
 
-        cities: list[City] = []
+        cities: List[City] = []
         distances = [[0 for _ in range(n)] for __ in range(n)]
 
         with open(filename, 'r') as file:
@@ -67,13 +71,13 @@ for filepath in os.listdir(instances_directory):
         print(Fore.LIGHTGREEN_EX + f'[Heurística]: Distância total percorrida: {heuristic_distance}')
 
         # Simulated Annealing
-        simulated_annealing_solution = annealing.main(0.95, 10000, 500, heuristic_solution, n, distances)
+        simulated_annealing_solution = annealing.main(0.95, 1000, 1e-3, heuristic_solution, n, distances)
         annealing_distance = calculate_tour_total_distance(simulated_annealing_solution, distances)
         # print(simulated_annealing_solution)
         print(Fore.LIGHTCYAN_EX + f'[Simulated Annealing]: Melhor distância total achada: {annealing_distance}')
 
         # Genetic algorithm
-        genetic_solution = genetic_algorithm.main(500, 0.1, list(range(n)), heuristic_solution, 10000, distances)
+        genetic_solution = genetic_algorithm.main(150, 0.1, list(range(n)), heuristic_solution, 1000, distances)
         genetic_distance = calculate_tour_total_distance(genetic_solution, distances)
         # print(genetic_solution)
         print(Fore.LIGHTMAGENTA_EX + f'[Genetic Algorithm]: Melhor distância total achada: {genetic_distance}')
