@@ -72,7 +72,7 @@ for filepath in dir:
 
         # Simulated Annealing
         simulated_annealing_solution = annealing.main(0.95, 1000, 1e-3, heuristic_solution, n, distances)
-        annealing_distance = calculate_tour_total_distance(simulated_annealing_solution, distances)
+        annealing_distance = calculate_tour_total_distance(simulated_annealing_solution, distances, 20)
         # print(simulated_annealing_solution)
         print(Fore.LIGHTCYAN_EX + f'[Simulated Annealing]: Melhor distância total achada: {annealing_distance}')
 

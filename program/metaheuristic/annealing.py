@@ -4,30 +4,34 @@ import math
 import copy
 
 # esta função gera a vizinhança utilizando um operador de busca local chamado SWAP
-def get_neighbors(current_solution, n_cities):
+def get_neighbors(current_solution, n_cities, number_of_neighbors_to_generate):
+    possible_solutions = []
+    for k in range(number_of_neighbors_to_generate):
+        # estamos criando uma cópia dessa variável com endereços de memória diferentes uma da outra mas com valores iguais
+        neighbor_solution = copy.deepcopy(current_solution)
 
-    # estamos criando uma cópia dessa variável com endereços de memória diferentes uma da outra mas com valores iguais
-    neighbor_solution = copy.deepcopy(current_solution)
+        i, j = random.sample(range(n_cities), 2)
 
-    i, j = random.sample(range(n_cities), 2)
+        idx = 0
+        for idx1, salesman in enumerate(neighbor_solution):
+            for idx2, _ in enumerate(salesman):
+                if idx == i:
+                    i = [idx1, idx2]
+                if idx == j:
+                    j = [idx1, idx2]
+                idx += 1
 
-    idx = 0
-    for idx1, salesman in enumerate(neighbor_solution):
-        for idx2, _ in enumerate(salesman):
-            if idx == i:
-                i = [idx1, idx2]
-            if idx == j:
-                j = [idx1, idx2]
-            idx += 1
+        neighbor_solution[i[0]][i[1]], neighbor_solution[j[0]][j[1]] = neighbor_solution[j[0]][j[1]], neighbor_solution[i[0]][i[1]]
+        possible_solutions.append(neighbor_solution)
 
-    neighbor_solution[i[0]][i[1]], neighbor_solution[j[0]][j[1]] = neighbor_solution[j[0]][j[1]], neighbor_solution[i[0]][i[1]]
+    best_neighbor = min(possible_solutions, key = lambda x: calculate_tour_total_distance(x))
 
-    return neighbor_solution
+    return best_neighbor
 
 # alpha: constante de decaimento da temperatura no intervalo [0, 1]
 # initial_temperature: temperatura inicial > 0
 # maximum_iterations: número máximo de iterações do algoritmo
-def main(alpha, initial_temperature, min_temperature, initial_solution, n_cities, distances):
+def main(alpha, initial_temperature, min_temperature, initial_solution, n_cities, distances, k_neighbors_to_generate):
     # criar algo para controlar o decaimento da temperatura
     current_temperature = initial_temperature
 
@@ -41,7 +45,7 @@ def main(alpha, initial_temperature, min_temperature, initial_solution, n_cities
     # while current_temperature >= 0.0:
     while current_temperature > min_temperature:
 
-        neighbor_solution = get_neighbors(current_solution, n_cities)
+        neighbor_solution = get_neighbors(current_solution, n_cities, k_neighbors_to_generate)
 
         # construir a vizinhança de current_solution e escolher uma delas
         # neighbor_solution = get_neighbors(current_solution)
