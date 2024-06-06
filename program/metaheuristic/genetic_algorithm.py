@@ -15,30 +15,30 @@ from tqdm import tqdm
 from time import sleep
 
 
-def partition(population, initial_city, m):
+def partition(population, initial_city):
 
     partitioned_population = []
 
     for individual in population:
         partitioned = []
-        i = -1
+        solution, cities_per_salesman = individual
 
-        for index, city in enumerate(individual):
-            if index % m == 0:
-                partitioned.append([])
-                i += 1
+        i1, i2 = 0, 0
 
-                partitioned[i-1].append(initial_city)
-                partitioned[i].append(initial_city)
-            partitioned[i].append(city)
+        for n_city in cities_per_salesman:
+            i1 = i2
+            i2 += n_city
+
+            partitioned.append(initial_city)
+            partitioned.extend(solution[i1:i2])
+            partitioned.append(initial_city)
 
         partitioned_population.append(partitioned)
 
     return partitioned_population
 
 
-def initialize_population(heuristic_solution, population_size):
-    population = []
+def initialize_solution_gene(heuristic_solution):
     solution = []
     initial_city = heuristic_solution[0][0]
 
@@ -47,17 +47,31 @@ def initialize_population(heuristic_solution, population_size):
             if city != initial_city:
                 solution.append(city)
 
+    tours = copy.deepcopy(solution)
+    random.shuffle(tours)
+
+    return tours
+
+
+def initialize_cities_per_salesman_gene(n, m):
+    while True:
+        pick = random.sample(range(2, n - 2 * (m - 1) + 1), m)
+        if sum(pick) == n - 1:
+            return pick
+
+
+def initialize_population(heuristic_solution, n, population_size):
+    population = []
+
     for i in range(population_size):
-
-        tours = copy.deepcopy(solution)
-        random.shuffle(tours)
-
-        population.append(tours)
+        population.append([])
+        population[i].append(initialize_solution_gene(heuristic_solution))
+        population[i].append(initialize_cities_per_salesman_gene(n, len(heuristic_solution)))
 
     return population
 
 
-def calculate_fitness(population, distances, m):
+def calculate_fitness(population, distances, initial_city):
     '''
     Generates a [0, 1] score for each chromossome (tour) within a population.
     This score is calculated using the maximum tour distance. That is:
@@ -69,10 +83,10 @@ def calculate_fitness(population, distances, m):
     '''
     tours_total_distances = []
 
-    partitioned = partition(population, m)
+    partitioned = partition(population, initial_city)
 
     for i in range(len(partitioned)):
-        tours_total_distances.append(calculate_tour_total_distance(partitioned[i], distances))
+        tours_total_distances.append(calculate_tour_total_distance(partitioned[i][0], distances))
 
     # the tour that has the maximum total distance
     max_tour_distance = max(tours_total_distances)
@@ -142,26 +156,18 @@ def crossover(selected_population, population):
     return offspring
 
 
-def mutate(offspring, mutation_rate, genes):
+def mutate(offspring, mutation_rate, cities, m):
     mutated_offspring = list()
 
     for individual in offspring:
         # we perform mutations while the random() returns True
         while random.random() < mutation_rate:
-            i, j = random.sample(genes, 2)
-
-            # we choose two random indexes
-            idx = 0
-            for idx1, salesman in enumerate(individual):
-                for idx2, _ in enumerate(salesman):
-                    if idx == i:
-                        i = [idx1, idx2]
-                    if idx == j:
-                        j = [idx1, idx2]
-                    idx += 1
+            i, j = random.sample(cities, 2)
 
             # SWAP approach
-            individual[i[0]][i[1]], individual[j[0]][j[1]] = individual[j[0]][j[1]], individual[i[0]][i[1]]
+            individual[0][i], individual[0][j] = individual[0][j], individual[0][i]
+
+            individual[1][i] = individual[1][j] = initialize_cities_per_salesman_gene(len(cities), m)
 
         mutated_offspring.append(individual)
 
@@ -178,12 +184,12 @@ def replace(population, population_score, new_generation, new_generation_score):
     return new_population
 
 
-def main(population_size, mutation_rate, genes, initial_solution, n_generations, distances):
+def main(population_size, mutation_rate, cities, initial_solution, n_generations, distances):
 
-    initial_population = initialize_population(genes, initial_solution, population_size)
+    initial_population = initialize_population(initial_solution, len(distances), population_size)
 
     current_population = copy.deepcopy(initial_population)
-    population_score = calculate_fitness(current_population, distances)
+    population_score = calculate_fitness(current_population, distances, initial_solution[0][0])
 
     for i in tqdm(range(n_generations)):
 
@@ -191,12 +197,12 @@ def main(population_size, mutation_rate, genes, initial_solution, n_generations,
         selected = select_from_population(current_population, population_score)
 
         # perform crossover between selected population and the rest of it
-        crossovered = crossover(selected, current_population, genes)
+        crossovered = crossover(selected, current_population)
 
         # perform mutation
-        new_generation = mutate(crossovered, mutation_rate, genes)
+        new_generation = mutate(crossovered, mutation_rate, cities, len(initial_solution))
 
-        new_generation_score = calculate_fitness(new_generation, distances)
+        new_generation_score = calculate_fitness(new_generation, distances, initial_solution[0][0])
 
         # natural selection itself
         current_population = replace(current_population, population_score, new_generation, new_generation_score)
