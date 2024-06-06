@@ -86,7 +86,7 @@ def calculate_fitness(population, distances, initial_city):
     partitioned = partition(population, initial_city)
 
     for i in range(len(partitioned)):
-        tours_total_distances.append(calculate_tour_total_distance(partitioned[i][0], distances))
+        tours_total_distances.append(calculate_tour_total_distance(partitioned[i], distances))
 
     # the tour that has the maximum total distance
     max_tour_distance = max(tours_total_distances)

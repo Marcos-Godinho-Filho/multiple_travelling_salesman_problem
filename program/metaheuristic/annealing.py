@@ -4,7 +4,7 @@ import math
 import copy
 
 # esta função gera a vizinhança utilizando um operador de busca local chamado SWAP
-def get_neighbors(current_solution, n_cities, number_of_neighbors_to_generate):
+def get_neighbors(current_solution, n_cities, number_of_neighbors_to_generate, distances):
     possible_solutions = []
     for k in range(number_of_neighbors_to_generate):
         # estamos criando uma cópia dessa variável com endereços de memória diferentes uma da outra mas com valores iguais
@@ -24,7 +24,7 @@ def get_neighbors(current_solution, n_cities, number_of_neighbors_to_generate):
         neighbor_solution[i[0]][i[1]], neighbor_solution[j[0]][j[1]] = neighbor_solution[j[0]][j[1]], neighbor_solution[i[0]][i[1]]
         possible_solutions.append(neighbor_solution)
 
-    best_neighbor = min(possible_solutions, key = lambda x: calculate_tour_total_distance(x))
+    best_neighbor = min(possible_solutions, key = lambda x: calculate_tour_total_distance(x, distances))
 
     return best_neighbor
 
@@ -45,7 +45,7 @@ def main(alpha, initial_temperature, min_temperature, initial_solution, n_cities
     # while current_temperature >= 0.0:
     while current_temperature > min_temperature:
 
-        neighbor_solution = get_neighbors(current_solution, n_cities, k_neighbors_to_generate)
+        neighbor_solution = get_neighbors(current_solution, n_cities, k_neighbors_to_generate, distances)
 
         # construir a vizinhança de current_solution e escolher uma delas
         # neighbor_solution = get_neighbors(current_solution)
