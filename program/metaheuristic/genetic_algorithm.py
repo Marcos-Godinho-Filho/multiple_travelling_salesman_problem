@@ -27,7 +27,7 @@ def partition(population, initial_city, m):
             if index % m == 0:
                 partitioned.append([])
                 i += 1
-                
+
                 partitioned[i-1].append(initial_city)
                 partitioned[i].append(initial_city)
             partitioned[i].append(city)
@@ -100,50 +100,43 @@ def select_from_population(population, population_score):
     return [tour for tour, score in elite]
 
 
-def crossover(selected_population, population, genes):
+def crossover(selected_population, population):
     offspring = list()
 
     for i in range(len(population)):
         # One parent from the top 50%
-        parent1 = random.choice(selected_population)
+        parent_1 = copy.deepcopy(random.choice(selected_population))
         # The other one is random, can be from bottom 50% for example
-        parent2 = random.choice(population)
+        parent_2 = copy.deepcopy(random.choice(population))
 
-        # Crossover point will also be random
-        crossover_point_1, crossover_point_2 = random.sample(genes, 2)
+        parent_1_cities, parent_2_cities = parent_1[0], parent_2[0]
 
-        idx = 0
-        child = list()
+        proto_child = [-1 for j in range(parent_1)]
 
-        left: List = copy.deepcopy(genes)
-        last = []
+        # Get a random set of cities from parent 1 and copy the cities
+        # on those positions into the corresponding positions of the proto_child
+        number_of_cities_from_parent_1 = random.randint(1, len(parent_1_cities))
+        cities_from_parent_1 = random.choice(parent_1_cities, number_of_cities_from_parent_1)
+        for index, city in enumerate(parent_1_cities):
+            if city in cities_from_parent_1:
+                proto_child[index] = city
 
-        for idx1, salesman in enumerate(parent1):
-            child.append([])
-            for idx2, city in enumerate(salesman):
-                if idx >= crossover_point_1 and idx < crossover_point_2:
-                    city2 = parent2[idx1][idx2]
+        # Ignore the cities which are already in the proto_child from the second parent.
+        # The resulting sequence of cities contains the cities the proto-child needs.
+        # Place the cities into the unfixed position of the proto-child from left to
+        # right according to the order of the sequence to produce one offspring
+        already_in_proto_child = []
+        for j in range(len(proto_child)):
+            if proto_child[j] == -1:
+                for city in parent_2_cities:
+                    if city not in cities_from_parent_1 and city not in already_in_proto_child:
+                        proto_child[j] = city
+                        already_in_proto_child.append(city)
+                        break
 
-                    if city2 not in child[idx1]:
-                        child[idx1].append(city2)
-                        left.remove(city2)
-                else:
-                    if idx >= crossover_point_2:
-                        last.append(city)
-                        if city in left:
-                            left.remove(city)
-                    else:
-                        child[idx1].append(city)
-
-                idx += 1
-
-            for i in left:
-                child[idx1].append(i)
-            for i in last:
-                child[idx1].append(i)
-
-        print(child)
-        sleep(100)
+        # Final child containing the proto_child (cities) and the nubmer of cities per
+        # salesman, which is the second gene, selected from the bes parent
+        child = [proto_child, parent_1[1]]
         offspring.append(child)
 
     return offspring
