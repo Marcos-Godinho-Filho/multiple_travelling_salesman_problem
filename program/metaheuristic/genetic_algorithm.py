@@ -15,38 +15,49 @@ from tqdm import tqdm
 from time import sleep
 
 
-def initialize_population(genes: list, heuristic_solution, population_size):
-    population = list()
+def partition(population, initial_city, m):
+
+    partitioned_population = []
+
+    for individual in population:
+        partitioned = []
+        i = -1
+
+        for index, city in enumerate(individual):
+            if index % m == 0:
+                partitioned.append([])
+                i += 1
+                
+                partitioned[i-1].append(initial_city)
+                partitioned[i].append(initial_city)
+            partitioned[i].append(city)
+
+        partitioned_population.append(partitioned)
+
+    return partitioned_population
+
+
+def initialize_population(heuristic_solution, population_size):
+    population = []
+    solution = []
+    initial_city = heuristic_solution[0][0]
+
+    for salesman in heuristic_solution:
+        for city in salesman:
+            if city != initial_city:
+                solution.append(city)
 
     for i in range(population_size):
-        # is a copy if the heuristic solution so it does not have to calculate remaining
-        # cities. Furthermore, it's easier to create new population because it just have
-        # to change the genes in each salesman
-        tour_model = copy.deepcopy(heuristic_solution)
 
-        tours = list()
-
-        initial_city = tour_model[0][0]
-
-        for salesman in tour_model:
-            new_genes = copy.deepcopy(genes)
-            # must remove the city from where the salesman leaves/finishes the tour, since that city
-            # cannot be in the middle of the tour when creating a new individual
-            new_genes.remove(salesman[0])
-
-            random.shuffle(new_genes)
-
-            new_genes.insert(0, initial_city)
-            new_genes.append(initial_city)
-
-            tours.append(new_genes)
+        tours = copy.deepcopy(solution)
+        random.shuffle(tours)
 
         population.append(tours)
 
     return population
 
 
-def calculate_fitness(population, distances):
+def calculate_fitness(population, distances, m):
     '''
     Generates a [0, 1] score for each chromossome (tour) within a population.
     This score is calculated using the maximum tour distance. That is:
@@ -57,8 +68,11 @@ def calculate_fitness(population, distances):
         fitness_score = [0,36; 0,27; 0,06; 0]
     '''
     tours_total_distances = []
-    for i in range(len(population)):
-        tours_total_distances.append(calculate_tour_total_distance(population[i], distances))
+
+    partitioned = partition(population, m)
+
+    for i in range(len(partitioned)):
+        tours_total_distances.append(calculate_tour_total_distance(partitioned[i], distances))
 
     # the tour that has the maximum total distance
     max_tour_distance = max(tours_total_distances)
