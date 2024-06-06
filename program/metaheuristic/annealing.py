@@ -59,12 +59,12 @@ def main(alpha, initial_temperature, min_temperature, initial_solution, n_cities
         # delta == 0: solução atual é igual a solução vizinha escolhida
         # delta < 0: solução atual é melhor que a solução vizinha escolhida
         # delta > 0: solução vizinha escolhida é melhor que a solução atual
-        if delta > 0:
+        if delta < 0:
             current_solution = neighbor_solution
         # até a linha de cima, temos o algoritmo do hill climbing
         else:
             try:
-                if random.uniform(0,1) < math.exp(-delta / current_temperature):
+                if random.uniform(0,1) < math.exp(delta / current_temperature):
                     current_solution = neighbor_solution
             except OverflowError:
                 break

@@ -24,14 +24,16 @@ def partition(population, initial_city):
         solution, cities_per_salesman = individual
 
         i1, i2 = 0, 0
+        i = 0
 
         for n_city in cities_per_salesman:
             i1 = i2
             i2 += n_city
 
-            partitioned.append(initial_city)
-            partitioned.extend(solution[i1:i2])
-            partitioned.append(initial_city)
+            partitioned.append([])
+            partitioned[i].append(initial_city)
+            partitioned[i].extend(solution[i1:i2])
+            partitioned[i].append(initial_city)
 
         partitioned_population.append(partitioned)
 
@@ -55,7 +57,7 @@ def initialize_solution_gene(heuristic_solution):
 
 def initialize_cities_per_salesman_gene(n, m):
     while True:
-        pick = random.sample(range(2, n - 2 * (m - 1) + 1), m)
+        pick = random.sample(range(2, n - 2 * (m - 1)), m)
         if sum(pick) == n - 1:
             return pick
 
@@ -125,12 +127,12 @@ def crossover(selected_population, population):
 
         parent_1_cities, parent_2_cities = parent_1[0], parent_2[0]
 
-        proto_child = [-1 for j in range(parent_1)]
+        proto_child = [-1 for j in range(len(parent_1_cities))]
 
         # Get a random set of cities from parent 1 and copy the cities
         # on those positions into the corresponding positions of the proto_child
         number_of_cities_from_parent_1 = random.randint(1, len(parent_1_cities))
-        cities_from_parent_1 = random.choice(parent_1_cities, number_of_cities_from_parent_1)
+        cities_from_parent_1 = random.sample(parent_1_cities, number_of_cities_from_parent_1)
         for index, city in enumerate(parent_1_cities):
             if city in cities_from_parent_1:
                 proto_child[index] = city
@@ -159,15 +161,19 @@ def crossover(selected_population, population):
 def mutate(offspring, mutation_rate, cities, m):
     mutated_offspring = list()
 
+    cities.pop()
+
     for individual in offspring:
         # we perform mutations while the random() returns True
         while random.random() < mutation_rate:
-            i, j = random.sample(cities, 2)
 
-            # SWAP approach
+            i, j = random.sample(cities, 2)
+            # SWAP approach - solution gene
             individual[0][i], individual[0][j] = individual[0][j], individual[0][i]
 
-            individual[1][i] = individual[1][j] = initialize_cities_per_salesman_gene(len(cities), m)
+            # SWAP approach - n_cities gene
+            individual[1].clear()
+            individual[1].extend(initialize_cities_per_salesman_gene(len(cities) + 1, m))
 
         mutated_offspring.append(individual)
 
