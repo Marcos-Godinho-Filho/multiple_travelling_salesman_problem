@@ -110,8 +110,8 @@ def select_from_population(population, population_score):
 
     # Sorts based on the score of each tour
     combined_sorted = sorted(combined, key = lambda x: x[1])
-    # Return top 50% of population => Most adapted and have greater scores
-    elite = combined_sorted[:int(0.5 * len(population))]
+    # Return top 10% of population => Most adapted and have greater scores
+    elite = combined_sorted[:int(0.1 * len(population))]
 
     return [tour for tour, score in elite]
 
@@ -161,13 +161,14 @@ def crossover(selected_population, population):
 def mutate(offspring, mutation_rate, cities, m):
     mutated_offspring = list()
 
-    cities.pop()
+    copy_cities = copy.deepcopy(cities)
+    copy_cities.pop()
 
     for individual in offspring:
         # we perform mutations while the random() returns True
         while random.random() < mutation_rate:
 
-            i, j = random.sample(cities, 2)
+            i, j = random.sample(copy_cities, 2)
             # SWAP approach - solution gene
             individual[0][i], individual[0][j] = individual[0][j], individual[0][i]
 
@@ -192,14 +193,16 @@ def replace(population, population_score, new_generation, new_generation_score):
 
 def main(population_size, mutation_rate, cities, initial_solution, n_generations, distances):
 
+    initial_city = initial_solution[0][0]
+
     initial_population = initialize_population(initial_solution, len(distances), population_size)
 
     current_population = copy.deepcopy(initial_population)
-    population_score = calculate_fitness(current_population, distances, initial_solution[0][0])
+    population_score = calculate_fitness(current_population, distances, initial_city)
 
     for i in tqdm(range(n_generations)):
 
-        # select 50% best individuals from population
+        # select 10% best individuals from population
         selected = select_from_population(current_population, population_score)
 
         # perform crossover between selected population and the rest of it
@@ -208,13 +211,13 @@ def main(population_size, mutation_rate, cities, initial_solution, n_generations
         # perform mutation
         new_generation = mutate(crossovered, mutation_rate, cities, len(initial_solution))
 
-        new_generation_score = calculate_fitness(new_generation, distances, initial_solution[0][0])
+        new_generation_score = calculate_fitness(new_generation, distances, initial_city)
 
         # natural selection itself
         current_population = replace(current_population, population_score, new_generation, new_generation_score)
 
     # Select the best individual from the final population
-    population_score = calculate_fitness(current_population, distances)
+    population_score = calculate_fitness(current_population, distances, initial_city)
     final_elite = select_from_population(current_population, population_score)
     best_tour = final_elite[0]
 

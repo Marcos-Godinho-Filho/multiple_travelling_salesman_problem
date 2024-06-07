@@ -76,11 +76,13 @@ for filepath in dir:
         # print(simulated_annealing_solution)
         print(Fore.LIGHTCYAN_EX + f'[Simulated Annealing]: Melhor distância total achada: {annealing_distance}')
 
+        print(Fore.LIGHTMAGENTA_EX)
+
         # Genetic algorithm
-        genetic_solution = genetic_algorithm.main(150, 0.1, list(range(n)), heuristic_solution, 1000, distances)
+        genetic_solution = genetic_algorithm.main(100, 0.5, list(range(n)), heuristic_solution, 25000, distances)
         genetic_distance = calculate_tour_total_distance(genetic_solution, distances)
         # print(genetic_solution)
-        print(Fore.LIGHTMAGENTA_EX + f'[Genetic Algorithm]: Melhor distância total achada: {genetic_distance}')
+        print(f'[Genetic Algorithm]: Melhor distância total achada: {genetic_distance}')
 
         input(Fore.LIGHTBLACK_EX + 'Pressione [ENTER] para ir para próxima instância: ')
         print(Fore.RESET)
