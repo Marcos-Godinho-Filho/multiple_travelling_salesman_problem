@@ -56,19 +56,24 @@ def initialize_solution_gene(heuristic_solution):
 
 
 def initialize_cities_per_salesman_gene(n, m):
-    while True:
-        pick = random.sample(range(2, n - 2 * (m - 1)), m)
-        if sum(pick) == n - 1:
-            return pick
+    k = int(n / m)
+    r = n % m
+
+    gene = [k for _ in range(m)]
+    for i in range(r):
+        gene[i] += 1
+
+    return gene
 
 
 def initialize_population(heuristic_solution, n, population_size):
     population = []
+    cities_per_salesman = initialize_cities_per_salesman_gene(n, len(heuristic_solution))
 
     for i in range(population_size):
         population.append([])
         population[i].append(initialize_solution_gene(heuristic_solution))
-        population[i].append(initialize_cities_per_salesman_gene(n, len(heuristic_solution)))
+        population[i].append(cities_per_salesman)
 
     return population
 
@@ -176,10 +181,6 @@ def mutate(offspring, mutation_rate, cities, m):
             i, j = random.sample(copy_cities, 2)
             # SWAP approach - solution gene
             individual[0][i.id], individual[0][j.id] = individual[0][j.id], individual[0][i.id]
-
-            # SWAP approach - n_cities gene
-            individual[1].clear()
-            individual[1].extend(initialize_cities_per_salesman_gene(len(cities), m))
 
         mutated_offspring.append(individual)
 

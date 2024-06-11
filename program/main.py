@@ -77,7 +77,7 @@ for filepath in dir:
         print(Fore.LIGHTGREEN_EX + f'[Heurística]: Distância total percorrida: {int(heuristic_distance)}')
 
         # number of iterations for ttt plot
-        n = 10
+        n = 5
         probabilities = calculate_probabilities(n)
 
         # Simulated Annealing
@@ -95,7 +95,7 @@ for filepath in dir:
         # Genetic algorithm
         genetic_times = []
         for _ in range(n):
-            genetic_solution, genetic_time = genetic_algorithm.main(100, 0.5, cities, heuristic_solution, 25000, distances)
+            genetic_solution, genetic_time = genetic_algorithm.main(100, 0.5, cities, heuristic_solution, 20000, distances)
             genetic_times.append(genetic_time)
         genetic_distance = calculate_tour_total_distance(genetic_solution, distances)
         # print(genetic_solution)
