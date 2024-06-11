@@ -11,6 +11,7 @@ from draw import *
 from utils import *
 from metaheuristic import annealing, genetic_algorithm
 from colorama import Fore
+import time
 import heuristic
 import os
 import platform
@@ -68,21 +69,20 @@ for filepath in dir:
         heuristic_solution = heuristic.main(distances, cities, n, m)
         heuristic_distance = calculate_tour_total_distance(heuristic_solution, distances)
         # print(heuristic_solution)
-        print(Fore.LIGHTGREEN_EX + f'[Heurística]: Distância total percorrida: {heuristic_distance}')
+        print(Fore.LIGHTGREEN_EX + f'[Heurística]: Distância total percorrida: {int(heuristic_distance)}')
 
         # Simulated Annealing
         simulated_annealing_solution = annealing.main(0.95, 1000, 1e-3, heuristic_solution, n, distances, 20)
         annealing_distance = calculate_tour_total_distance(simulated_annealing_solution, distances)
         # print(simulated_annealing_solution)
-        print(Fore.LIGHTCYAN_EX + f'[Simulated Annealing]: Melhor distância total achada: {annealing_distance}')
-
+        print(Fore.LIGHTCYAN_EX + f'[Simulated Annealing]: Melhor distância total achada: {int(annealing_distance)}')
         print(Fore.LIGHTMAGENTA_EX)
 
         # Genetic algorithm
         genetic_solution = genetic_algorithm.main(100, 0.5, cities, heuristic_solution, 25000, distances)
         genetic_distance = calculate_tour_total_distance(genetic_solution, distances)
         # print(genetic_solution)
-        print(f'[Genetic Algorithm]: Melhor distância total achada: {genetic_distance}')
+        print(f'[Genetic Algorithm]: Melhor distância total achada: {int(genetic_distance)}')
 
-        input(Fore.LIGHTBLACK_EX + 'Pressione [ENTER] para ir para próxima instância: ')
+        # input(Fore.LIGHTBLACK_EX + 'Pressione [ENTER] para ir para próxima instância: ')
         print(Fore.RESET)

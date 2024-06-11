@@ -14,4 +14,4 @@ def calculate_tour_total_distance(tours: List[List[int]], distances: List[List[i
     return total_distance
 
 def distance_between_cities (first: City, second: City):
-    return int(sqrt((second.x - first.x) ** 2 + (second.y - first.y) ** 2))
+    return sqrt((second.x - first.x) ** 2 + (second.y - first.y) ** 2)

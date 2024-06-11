@@ -113,8 +113,8 @@ def select_from_population(population, population_score):
 
     # Sorts based on the score of each tour
     combined_sorted = sorted(combined, key = lambda x: x[1], reverse=True)
-    # Return top 10% of population => Most adapted and have greater scores
-    elite = combined_sorted[:int(0.1 * len(population))]
+    # Return top 50% of population => Most adapted and have greater scores
+    elite = combined_sorted[:int(0.5 * len(population))]
 
     return [tour for tour, score in elite]
 
@@ -206,7 +206,6 @@ def main(population_size, mutation_rate, cities, initial_solution, n_generations
 
         current_population_score = calculate_fitness(current_population, distances, initial_city)
 
-        # select 10% best individuals from population
         selected = select_from_population(current_population, current_population_score)
 
         # perform crossover between selected population and the rest of it
