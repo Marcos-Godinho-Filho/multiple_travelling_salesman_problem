@@ -11,8 +11,8 @@ from utils import calculate_tour_total_distance
 from typing import List
 import random
 import copy
+import time
 from tqdm import tqdm
-from time import sleep
 
 
 def partition(population, initial_city):
@@ -198,6 +198,8 @@ def replace(population, population_score, new_generation, new_generation_score):
 
 def main(population_size, mutation_rate, cities, initial_solution, n_generations, distances):
 
+    start_time = time.time()
+
     initial_city = initial_solution[0][0]
 
     current_population = initialize_population(initial_solution, len(distances), population_size)
@@ -226,4 +228,6 @@ def main(population_size, mutation_rate, cities, initial_solution, n_generations
     best_tour = partition([best_tour], initial_city)
     best_tour = best_tour[0]
 
-    return best_tour
+    end_time = time.time()
+
+    return best_tour, end_time - start_time

@@ -9,7 +9,7 @@ def draw_cities (cities: list, centroid: City):
     for i, city in enumerate(cities):
         plt.scatter(city.x, city.y, color='red')
         plt.text(city.x, city.y, f'{i}')
-    
+
     plt.scatter(centroid.x, centroid.y, color='blue')
 
     plt.show()
@@ -26,7 +26,7 @@ def draw_polygon (centroid: City, n_cities: int, cities: List[City], polygon: Li
             if polygon[i][j] == 1:
                 origin = cities[i]
                 destination = cities[j]
-                
+
                 if i != centroid.id and j != centroid.id:
                     plt.plot([origin.x, destination.x], [origin.y, destination.y], color='r', marker='o')
 
@@ -39,19 +39,31 @@ def draw_solution(tours: List[List[int]], cities: List[City]):
     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
     color = 0
 
-    for tour in tours:  
+    for tour in tours:
         for i in range(len(tour) - 1):
             origin = tour[i]
             destination = tour[i+1]
-            
+
             plt.plot([cities[origin].x, cities[destination].x], [cities[origin].y, cities[destination].y], color=colors[color], marker = 'o')
 
         color += 1
         if color == 7:
             color = 0
-            
+
     for ix, city in enumerate(cities):
         plt.text(city.x, city.y, f'{ix}')
 
     plt.show()
-    
+
+# code created with help of chat-gpt and based on this article: https://mauricio.resende.info/tttplots/
+def draw_ttt_plot(run_times, probabilities):
+
+    run_times.sort()
+
+    plt.scatter(run_times, probabilities, marker='+', linestyle='-')
+
+    plt.title('Time to Target Plot')
+    plt.xlabel('time to target solution (secs)')
+    plt.ylabel('cumulative probability')
+    plt.grid(True)
+    plt.show()

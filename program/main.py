@@ -25,6 +25,11 @@ def get_numeric(list):
     return numerical
 
 
+# code created with help of chat-gpt and based on this article: https://mauricio.resende.info/tttplots/
+def calculate_probabilities(n):
+    return [(i - 0.5) / n for i in range(1, n + 1)]
+
+
 script_directory = os.path.dirname(os.path.abspath(__file__))
 instances_directory = os.path.join(script_directory, '..', 'instances')
 
@@ -71,18 +76,33 @@ for filepath in dir:
         # print(heuristic_solution)
         print(Fore.LIGHTGREEN_EX + f'[Heurística]: Distância total percorrida: {int(heuristic_distance)}')
 
+        # number of iterations for ttt plot
+        n = 10
+        probabilities = calculate_probabilities(n)
+
         # Simulated Annealing
-        simulated_annealing_solution = annealing.main(0.95, 1000, 1e-3, heuristic_solution, n, distances, 20)
+        annealing_times = []
+        target = heuristic_distance * 2
+        for _ in range(n):
+            simulated_annealing_solution, simulated_annealing_time = annealing.main(0.95, 1000, 1e-3, heuristic_solution, n, distances, 20, target)
+            annealing_times.append(simulated_annealing_time)
         annealing_distance = calculate_tour_total_distance(simulated_annealing_solution, distances)
         # print(simulated_annealing_solution)
         print(Fore.LIGHTCYAN_EX + f'[Simulated Annealing]: Melhor distância total achada: {int(annealing_distance)}')
         print(Fore.LIGHTMAGENTA_EX)
 
+        draw_ttt_plot(annealing_times, probabilities)
+
         # Genetic algorithm
-        genetic_solution = genetic_algorithm.main(100, 0.5, cities, heuristic_solution, 25000, distances)
+        genetic_times = []
+        for _ in range(n):
+            genetic_solution, genetic_time = genetic_algorithm.main(100, 0.5, cities, heuristic_solution, 25000, distances)
+            genetic_times.append(genetic_time)
         genetic_distance = calculate_tour_total_distance(genetic_solution, distances)
         # print(genetic_solution)
         print(f'[Genetic Algorithm]: Melhor distância total achada: {int(genetic_distance)}')
+
+        draw_ttt_plot(genetic_times, probabilities)
 
         # input(Fore.LIGHTBLACK_EX + 'Pressione [ENTER] para ir para próxima instância: ')
         print(Fore.RESET)
