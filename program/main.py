@@ -79,7 +79,7 @@ for filepath in dir:
         print(Fore.LIGHTMAGENTA_EX)
 
         # Genetic algorithm
-        genetic_solution = genetic_algorithm.main(100, 0.5, list(range(n)), heuristic_solution, 25000, distances)
+        genetic_solution = genetic_algorithm.main(100, 0.5, cities, heuristic_solution, 25000, distances)
         genetic_distance = calculate_tour_total_distance(genetic_solution, distances)
         # print(genetic_solution)
         print(f'[Genetic Algorithm]: Melhor distância total achada: {genetic_distance}')
