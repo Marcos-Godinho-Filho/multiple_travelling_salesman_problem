@@ -56,7 +56,7 @@ def draw_solution(tours: List[List[int]], cities: List[City]):
     plt.show()
 
 # code created with help of chat-gpt and based on this article: https://mauricio.resende.info/tttplots/
-def draw_ttt_plot(run_times, probabilities):
+def draw_ttt_plot(run_times, probabilities, figname):
 
     run_times.sort()
 
@@ -66,4 +66,4 @@ def draw_ttt_plot(run_times, probabilities):
     plt.xlabel('time to target solution (secs)')
     plt.ylabel('cumulative probability')
     plt.grid(True)
-    plt.show()
+    plt.savefig(figname)

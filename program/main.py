@@ -77,12 +77,12 @@ for filepath in dir:
         print(Fore.LIGHTGREEN_EX + f'[Heurística]: Distância total percorrida: {int(heuristic_distance)}')
 
         # number of iterations for ttt plot
-        n = 5
+        k = 5
         probabilities = calculate_probabilities(n)
 
         # Simulated Annealing
         annealing_times = []
-        for _ in range(n):
+        for _ in range(k):
             simulated_annealing_solution, simulated_annealing_time = annealing.main(0.95, 1000, 1e-3, heuristic_solution, n, distances, 20)
             annealing_times.append(simulated_annealing_time)
         annealing_distance = calculate_tour_total_distance(simulated_annealing_solution, distances)
@@ -90,18 +90,18 @@ for filepath in dir:
         print(Fore.LIGHTCYAN_EX + f'[Simulated Annealing]: Melhor distância total achada: {int(annealing_distance)}')
         print(Fore.LIGHTMAGENTA_EX)
 
-        draw_ttt_plot(annealing_times, probabilities)
+        draw_ttt_plot(annealing_times, probabilities, os.path.join('pictures', f'annealing-n{n}-m{m}'))
 
         # Genetic algorithm
         genetic_times = []
-        for _ in range(n):
+        for _ in range(k):
             genetic_solution, genetic_time = genetic_algorithm.main(100, 0.5, cities, heuristic_solution, 20000, distances)
             genetic_times.append(genetic_time)
         genetic_distance = calculate_tour_total_distance(genetic_solution, distances)
         # print(genetic_solution)
         print(f'[Genetic Algorithm]: Melhor distância total achada: {int(genetic_distance)}')
 
-        draw_ttt_plot(genetic_times, probabilities)
+        draw_ttt_plot(genetic_times, probabilities, os.path.join('pictures', f'genetic-n{n}-m{m}'))
 
         # input(Fore.LIGHTBLACK_EX + 'Pressione [ENTER] para ir para próxima instância: ')
         print(Fore.RESET)
