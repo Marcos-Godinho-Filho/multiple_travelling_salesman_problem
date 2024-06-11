@@ -82,9 +82,8 @@ for filepath in dir:
 
         # Simulated Annealing
         annealing_times = []
-        target = heuristic_distance * 2
         for _ in range(n):
-            simulated_annealing_solution, simulated_annealing_time = annealing.main(0.95, 1000, 1e-3, heuristic_solution, n, distances, 20, target)
+            simulated_annealing_solution, simulated_annealing_time = annealing.main(0.95, 1000, 1e-3, heuristic_solution, n, distances, 20)
             annealing_times.append(simulated_annealing_time)
         annealing_distance = calculate_tour_total_distance(simulated_annealing_solution, distances)
         # print(simulated_annealing_solution)

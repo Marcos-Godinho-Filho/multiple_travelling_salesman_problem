@@ -32,11 +32,9 @@ def get_neighbors(current_solution, n_cities, number_of_neighbors_to_generate, d
 # alpha: constante de decaimento da temperatura no intervalo [0, 1]
 # initial_temperature: temperatura inicial > 0
 # maximum_iterations: número máximo de iterações do algoritmo
-def main(alpha, initial_temperature, min_temperature, initial_solution, n_cities, distances, k_neighbors_to_generate, target):
+def main(alpha, initial_temperature, min_temperature, initial_solution, n_cities, distances, k_neighbors_to_generate):
 
     start_time = time.time()
-    end_time = 0
-    found_target = False
 
     # criar algo para controlar o decaimento da temperatura
     current_temperature = initial_temperature
@@ -60,10 +58,6 @@ def main(alpha, initial_temperature, min_temperature, initial_solution, n_cities
         current_solution_total_distance = calculate_tour_total_distance(current_solution, distances)
         neighbor_solution_total_distance = calculate_tour_total_distance(neighbor_solution, distances)
 
-        if neighbor_solution_total_distance < target and not found_target:
-            end_time = time.time()
-            found_target = True
-
         delta = current_solution_total_distance - neighbor_solution_total_distance
 
         # delta == 0: solução atual é igual a solução vizinha escolhida
@@ -81,5 +75,7 @@ def main(alpha, initial_temperature, min_temperature, initial_solution, n_cities
 
         # current_temperature = current_temperature - alpha
         current_temperature = alpha * current_temperature
+
+    end_time = time.time()
 
     return current_solution, end_time - start_time
