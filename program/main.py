@@ -78,7 +78,7 @@ for filepath in dir:
 
         # number of iterations for ttt plot
         k = 5
-        probabilities = calculate_probabilities(n)
+        probabilities = calculate_probabilities(k)
 
         # Simulated Annealing
         annealing_times = []
@@ -90,7 +90,7 @@ for filepath in dir:
         print(Fore.LIGHTCYAN_EX + f'[Simulated Annealing]: Melhor distância total achada: {int(annealing_distance)}')
         print(Fore.LIGHTMAGENTA_EX)
 
-        draw_ttt_plot(annealing_times, probabilities, os.path.join('pictures', f'annealing-n{n}-m{m}'))
+        draw_ttt_plot(annealing_times, probabilities, f'annealing-n{n}-m{m}.png')
 
         # Genetic algorithm
         genetic_times = []
@@ -101,7 +101,7 @@ for filepath in dir:
         # print(genetic_solution)
         print(f'[Genetic Algorithm]: Melhor distância total achada: {int(genetic_distance)}')
 
-        draw_ttt_plot(genetic_times, probabilities, os.path.join('pictures', f'genetic-n{n}-m{m}'))
+        draw_ttt_plot(genetic_times, probabilities, f'genetic-n{n}-m{m}.png')
 
         # input(Fore.LIGHTBLACK_EX + 'Pressione [ENTER] para ir para próxima instância: ')
         print(Fore.RESET)
