@@ -67,3 +67,5 @@ def draw_ttt_plot(run_times, probabilities, figname):
     plt.ylabel('cumulative probability')
     plt.grid(True)
     plt.savefig(figname)
+
+    plt.clf()
